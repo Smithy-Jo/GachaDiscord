@@ -37,7 +37,7 @@ module.exports = {
             Routes.applicationGuildCommands(process.env.DISCORD_CLIENT_ID, process.env.DISCORD_GUILD_ID),
             { body: client.commands.map(command => command.data.toJSON()) },
         )
-            .then((reqponse) => console.log(`[INFO] Successfully deployed ${reqponse.length}`))
+            .then((reqponse) => console.log(`[INFO] Successfully deployed ${reqponse.length} commands`))
             .catch(error => console.error(`[ERROR] Failed to deploy commands to guild `, error));
     },
 
