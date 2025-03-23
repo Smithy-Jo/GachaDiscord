@@ -1,0 +1,32 @@
+{
+    "titlesByRarity": {
+        "Commun": [
+            "l'Apprenti", "le Vagabond", "le Modeste", "le Novice", "le Rêveur",
+            "le Malchanceux", "le Perdu", "l'Inconnu", "le Simple", "l'Errant"
+        ],
+        "Rare": [
+            "le Stratège", "l'Insaisissable", "le Mystique", "le Voyageur", "le Tacticien",
+            "le Gardien", "le Maître d’Armes", "le Dompteur", "le Silencieux", "l'Érudit"
+        ],
+        "Épique": [
+            "le Champion", "l'Ombre", "le Fléau", "le Héros", "le Colosse",
+            "le Dévastateur", "le Sanguinaire", "le Chasseur", "le Revenant", "le Maître de Guerre"
+        ],
+        "Légendaire": [
+            "l'Élu des Dieux", "le Destructeur", "le Maître des Arcanes", "l'Immortel", "le Titan",
+            "le Fléau du Monde", "l'Inarrêtable", "le Dernier Rempart", "l'Exalté", "le Briseur de Royaumes"
+        ]
+    },
+    "prefixes": [
+        "Ka", "Lo", "Dra", "Syl", "Va", "Xen", "Zal", "Or", "Tor", "Mel", "Fen", "Gor",
+        "Thy", "Bel", "Kra", "Zor", "Vel", "Mor", "Eld", "Jor", "Tar", "Yl", "Nym", "Var"
+    ],
+    "cores": [
+        "mar", "ven", "thal", "zara", "gor", "mir", "tus", "ran", "dor", "zar", "lyn", "vor",
+        "ther", "gil", "nor", "sel", "rix", "mal", "tan", "riv", "kan", "sol", "ith", "quor"
+    ],
+    "suffixes": [
+        "os", "is", "ael", "ir", "en", "ius", "or", "an", "eth", "al", "oth", "ion", "uin",
+        "dor", "ias", "iel", "orn", "ron", "el", "yn", "ix", "us", "ea", "ae", "ar", "ek"
+    ]
+}

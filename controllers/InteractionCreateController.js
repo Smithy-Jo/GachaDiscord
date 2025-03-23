@@ -1,13 +1,13 @@
-const { CommandNotFoundError, CooldownError, MissingPermissionError } = require("../errors/CommandsErrors");
+const { CommandNotFoundError, CooldownError } = require("../errors/CommandsErrors");
+const ModalController = require('./ModalController');
 const { Collection } = require('discord.js');
 
 module.exports = {
     modalSubmitCtrl: async function (interaction) {
-        if (interaction.customId === 'myModal') {
-            const favoriteColor = interaction.fields.getTextInputValue('favoriteColorInput');
-            const hobbies = interaction.fields.getTextInputValue('hobbiesInput');
-            console.log({ favoriteColor, hobbies });
-            interaction.reply('Thanks for submitting!');
+        if (interaction.customId === 'registerModal') {
+            ModalController.register(interaction);
+        } else if (interaction.customId === 'unregisterModal') {
+            ModalController.unregister(interaction);
         }
     },
 
@@ -41,7 +41,7 @@ module.exports = {
         }
         timestamps.set(interaction.user.id, now);
         setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
-       
+
         // Execution de la commande
         return command.execute(interaction);
     }

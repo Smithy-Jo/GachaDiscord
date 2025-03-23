@@ -19,7 +19,7 @@ const optionTypeMap = {
 module.exports = {
     category: 'info',
     data: new SlashCommandBuilder()
-        .setName('help')
+        .setName('gacha-help')
         .setDescription('Affiche l\'aide des commandes disponibles'),
     async execute(interaction) {
         await interaction.deferReply();

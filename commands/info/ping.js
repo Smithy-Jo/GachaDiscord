@@ -3,7 +3,7 @@ const { SlashCommandBuilder } = require('discord.js');
 module.exports = {
     category: 'info',
     data: new SlashCommandBuilder()
-        .setName('ping')
+        .setName('gacha-ping')
         .setDescription('Répond avec Pong !'),
     async execute(interaction) {
         const start = Date.now(); // Temps avant la réponse

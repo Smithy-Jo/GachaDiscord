@@ -1,6 +1,8 @@
 require('dotenv').config();
 
 const { Client, GatewayIntentBits } = require('discord.js');
+require('./models/index.js');
+
 const commandLoader = require('./utils/CommandLoader.js');
 const eventLoader = require('./utils/EventLoader.js');
 
