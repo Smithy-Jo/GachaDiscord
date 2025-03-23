@@ -1,5 +1,8 @@
 const { EmbedBuilder } = require('discord.js');
 const { prefixes, cores, suffixes, titlesByRarity } = require('../config/characterNames.json');
+const configDrop = require('../config/drop.json');
+const Effect = require('./Effect');
+
 
 function generateCharacterName(rarity) {
     
@@ -40,7 +43,6 @@ function getRarityColor(rarity) {
 class Character {
 
     static knex = null;
-    static configDrop = require('../config/drop.json');
     
     constructor(user) {
         this.user_id = user.id;
@@ -51,7 +53,7 @@ class Character {
     }
 
     static getRarity(user) {
-        const pity_system = Character.configDrop.pity_system;
+        const pity_system = configDrop.pity_system;
         if (user.legendary_pity >= pity_system.legendary_guarantee) {
             return 'legendary';
         }
@@ -61,7 +63,7 @@ class Character {
 
         const roll = Math.random() * 100;
         let cumulativeChance = 0;
-        for (const [rarity, data] of Object.entries(Character.configDrop.rarity_rates)) {
+        for (const [rarity, data] of Object.entries(configDrop.rarity_rates)) {
             cumulativeChance += data.probability;
             if (roll <= cumulativeChance) {
                 return rarity;
@@ -75,7 +77,7 @@ class Character {
     }
 
     generateStats() {
-        const rarity_rates = Character.configDrop.rarity_rates;
+        const rarity_rates = configDrop.rarity_rates;
         const stats = rarity_rates[this.rarity].stats_range;
 
         this.hp = Character.getRandomStat(stats.hp.min, stats.hp.max);
@@ -89,7 +91,9 @@ class Character {
     }
 
     generateSkills() {
-        throw new Error("Not implemented");        
+        // Genere l'attaque de base
+        // Genere la capacité spéciale si rareté >= épique
+        // Genere la capacité ultime si rareté == légendaire
     }
 
     async save() {

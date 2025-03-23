@@ -1,0 +1,312 @@
+{
+    "suffixes": {
+        "level": {
+            "basic": [
+                "Oublié",
+                "Dégradé",
+                "Médiocre",
+                "Novice",
+                "Débutant",
+                "Faible"
+            ],
+            "special": [
+                "Apprenti",
+                "Intermédiaire",
+                "Adepte",
+                "Compétent",
+                "Expérimenté",
+                "Maîtrisé"
+            ],
+            "ultimate": [
+                "Expert",
+                "Maître",
+                "Légendaire",
+                "Ancestral",
+                "Mythique",
+                "Divin",
+                "Transcendant"
+            ]
+        }
+    },
+    "keywords": {
+        "enemy": {
+            "hp": {
+                "instant": [
+                    "Coup",
+                    "Attaque",
+                    "Frappe",
+                    "Impact",
+                    "Charge",
+                    "Percée"
+                ],
+                "durable": [
+                    "Poison",
+                    "Saignement",
+                    "Fléau",
+                    "Malédiction",
+                    "Érosion"
+                ]
+            },
+            "def": {
+                "instant": [
+                    "Brèche",
+                    "Fracassement",
+                    "Fracture",
+                    "Choc"
+                ],
+                "durable": [
+                    "Fragilisation",
+                    "Corrosion",
+                    "Affaiblissement",
+                    "Érosion"
+                ]
+            },
+            "atk": {
+                "instant": [
+                    "Riposte",
+                    "Réduction",
+                    "Dissipation"
+                ],
+                "durable": [
+                    "Affaiblissement",
+                    "Inhibition",
+                    "Scellement",
+                    "Épuisement"
+                ]
+            },
+            "speed": {
+                "instant": [
+                    "Entrave",
+                    "Paralysie",
+                    "Harcèlement"
+                ],
+                "durable": [
+                    "Lenteur",
+                    "Enchevêtrement",
+                    "Gel",
+                    "Immobilisation"
+                ]
+            },
+            "crit": {
+                "instant": [
+                    "Déséquilibre",
+                    "Réduction critique",
+                    "Affaiblissement"
+                ],
+                "durable": [
+                    "Aveuglement",
+                    "Diminution critique",
+                    "Obscurcissement"
+                ]
+            },
+            "dodge": {
+                "instant": [
+                    "Précision",
+                    "Focalisation",
+                    "Ciblage"
+                ],
+                "durable": [
+                    "Marquage",
+                    "Réduction d’esquive",
+                    "Ancrage"
+                ]
+            }
+        },
+        "self": {
+            "hp": {
+                "instant": [
+                    "Soin",
+                    "Guérison",
+                    "Restauration",
+                    "Soulagement"
+                ],
+                "durable": [
+                    "Régénération",
+                    "Panacée",
+                    "Méditation",
+                    "Reconstruction"
+                ]
+            },
+            "def": {
+                "instant": [
+                    "Protection",
+                    "Blocage",
+                    "Endurance"
+                ],
+                "durable": [
+                    "Aura",
+                    "Renforcement",
+                    "Gardien",
+                    "Barrière",
+                    "Marque"
+                ]
+            },
+            "atk": {
+                "instant": [
+                    "Surge",
+                    "Élan",
+                    "Empower"
+                ],
+                "durable": [
+                    "Furie",
+                    "Éveil",
+                    "Montée en puissance"
+                ]
+            },
+            "speed": {
+                "instant": [
+                    "Accélération",
+                    "Précipitation",
+                    "Ruée"
+                ],
+                "durable": [
+                    "Célérité",
+                    "Élan continu",
+                    "Impulsion"
+                ]
+            },
+            "crit": {
+                "instant": [
+                    "Concentration",
+                    "Visée",
+                    "Focalisation"
+                ],
+                "durable": [
+                    "Précision",
+                    "Éveil critique",
+                    "Maîtrise"
+                ]
+            },
+            "dodge": {
+                "instant": [
+                    "Esquive",
+                    "Dérobade",
+                    "Souplesse"
+                ],
+                "durable": [
+                    "Ombre",
+                    "Intangibilité",
+                    "Réflexes accrus"
+                ]
+            }
+        }
+    },
+    "elements": {
+        "neutral": [
+            "Immuable",
+            "Serein",
+            "Atemporel",
+            "Mystique",
+            "Éthéré",
+            "Harmonieux",
+            "Équilibré",
+            "Insaisissable",
+            "Omniscient",
+            "Enigmatique",
+            "Divin",
+            "Sublime",
+            "Intemporel",
+            "Insondable",
+            "Éclipsé",
+            "Souverain",
+            "Stellaire",
+            "Éveillé",
+            "Alpha",
+            "Zénithal",
+            "Sagesse",
+            "Absolu",
+            "Plasma",
+            "Infini",
+            "Abyssal",
+            "Légendaire",
+            "Spectral"
+        ],
+        "fire": [
+            "Ardent",
+            "Infernal",
+            "Pyromantique",
+            "Dévastateur",
+            "Flamboyant",
+            "Brûlant",
+            "Embrasé",
+            "Éruptif",
+            "Volcanique",
+            "Fulgurant",
+            "Éthéré",
+            "Incandescent",
+            "Démoniaque",
+            "Solaire",
+            "Foudroyant",
+            "Chaotique",
+            "Apocalyptique",
+            "Féroce",
+            "Draconique",
+            "Emberlificoté",
+            "Ravageur",
+            "Ancestral",
+            "Fléau",
+            "Tempétueux",
+            "Magmatique",
+            "Surpuissant",
+            "Maudit"
+        ],
+        "water": [
+            "Abyssal",
+            "Glacial",
+            "Torrentiel",
+            "Envoûtant",
+            "Marin",
+            "Occulte",
+            "Légendaire",
+            "Sombre",
+            "Nébuleux",
+            "Déchaîné",
+            "Givré",
+            "Hivernal",
+            "Implacable",
+            "Céleste",
+            "Ténébreux",
+            "Transcendant",
+            "Sirénique",
+            "Aqueux",
+            "Lugubre",
+            "Tsunamique",
+            "Nocturne",
+            "Maudit",
+            "Mythique",
+            "Mirage",
+            "Spectral",
+            "Brumeux",
+            "Évanescent"
+        ],
+        "earth": [
+            "Titanesque",
+            "Tellurique",
+            "Indomptable",
+            "Obsidien",
+            "Colossal",
+            "Cyclopéen",
+            "Impénétrable",
+            "Inébranlable",
+            "Primordial",
+            "Monolithique",
+            "Ancestral",
+            "Éruptif",
+            "Sismique",
+            "Basiliskien",
+            "Chtonien",
+            "Cristallin",
+            "Géant",
+            "Fossile",
+            "Adamantin",
+            "Mystique",
+            "Gargantuesque",
+            "Granitique",
+            "Runique",
+            "Éternel",
+            "Magistral",
+            "Impassible",
+            "Inflexible"
+        ]
+    }
+}

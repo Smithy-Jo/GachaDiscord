@@ -8,9 +8,8 @@ exports.up = function (knex) {
         table.string('name').notNullable();
         table.text('description').notNullable(); 
         table.enum('element', ['neutral', 'fire', 'water', 'earth']).notNullable();
-        table.enum('affected_stat', ['hp', 'atk', 'def', 'speed', 'dodge', 'crit']).notNullable(); 
+        table.enum('affected_stat', ['hp', 'atk', 'def', 'speed', 'dodge', 'crit']); 
         table.enum('target', ['self', 'enemy']).notNullable();
-        table.integer('effect_value').notNullable();
         table.integer('duration').notNullable();
         table.integer('value').notNullable(); 
         table.timestamp('created_at').defaultTo(knex.fn.now());
@@ -23,5 +22,5 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-
+    return knex.schema.dropTable('effects');
 };
