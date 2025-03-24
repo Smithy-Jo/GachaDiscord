@@ -1,34 +1,32 @@
 {
     "suffixes": {
-        "level": {
-            "basic": [
-                "Oublié",
-                "Dégradé",
-                "Médiocre",
-                "Novice",
-                "Débutant",
-                "Faible"
-            ],
-            "special": [
-                "Apprenti",
-                "Intermédiaire",
-                "Adepte",
-                "Compétent",
-                "Expérimenté",
-                "Maîtrisé"
-            ],
-            "ultimate": [
-                "Expert",
-                "Maître",
-                "Légendaire",
-                "Ancestral",
-                "Mythique",
-                "Divin",
-                "Transcendant"
-            ]
-        }
+        "basic_skill": [
+            "Oublié",
+            "Dégradé",
+            "Médiocre",
+            "Novice",
+            "Débutant",
+            "Faible"
+        ],
+        "special_skill": [
+            "Apprenti",
+            "Intermédiaire",
+            "Adepte",
+            "Compétent",
+            "Expérimenté",
+            "Maîtrisé"
+        ],
+        "ultimate_skill": [
+            "Expert",
+            "Maître",
+            "Légendaire",
+            "Ancestral",
+            "Mythique",
+            "Divin",
+            "Transcendant"
+        ]
     },
-    "keywords": {
+    "prefixes": {
         "enemy": {
             "hp": {
                 "instant": [
@@ -191,7 +189,7 @@
             }
         }
     },
-    "elements": {
+    "cores": {
         "neutral": [
             "Immuable",
             "Serein",

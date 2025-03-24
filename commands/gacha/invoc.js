@@ -45,31 +45,20 @@ module.exports = {
             });
 
             collector.on('collect', async i => {
-                
+
                 if ((i.customId === 'btn_invoc_1' && userModelInstance.balance < 100) || (i.customId === 'btn_invoc_10' && userModelInstance.balance < 1000)) {
                     await i.update({ content: 'Vous n\'avez pas assez de pièces pour invoquer !', components: [] });
 
                 } else if (i.customId === 'btn_invoc_1') {
-                    let character = new Character(userModelInstance);
-                    await character.save();
-                    await userModelInstance.updatePitySystem(character.rarity);
+                    const character = await Character.invoc(userModelInstance);
                     userModelInstance.balance -= 100;
+                    userModelInstance.updatePitySystem(character.rarity);
                     await userModelInstance.save();
-                    const embed = character.generateEmbed();
-                    await i.update({ content: `Vous avez invoqué ${character.name} !`, embeds: [embed], components: [] });
+                    await i.update({ content: '', components: [], embeds: [character.generateEmbed()] });
 
                 } else if (i.customId === 'btn_invoc_10') {
-                    let characters = [];
-                    for (let i = 0; i < 10; i++) {
-                        let character = new Character(userModelInstance);
-                        characters.push(character);
-                        await character.save();
-                        await userModelInstance.updatePitySystem(character.rarity);
-                        userModelInstance.balance -= 100;
-                    }
-                    await userModelInstance.save();
-                    const embeds = characters.map(character => character.generateEmbed());
-                    await i.update({ content: `Vous avez invoqué 10 personnages !`, embeds: embeds, components: [] });
+                    await i.update({ content: 'Work in progress', components: [] });
+                
                 }
 
                 collector.stop();

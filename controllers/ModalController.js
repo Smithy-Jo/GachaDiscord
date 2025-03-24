@@ -22,7 +22,6 @@ module.exports = {
             await User.create({
                 id: interaction.user.id,
                 username: interaction.user.username,
-                discriminator: interaction.user.discriminator,
                 email: email,
                 password: bcrypt.hashSync(password, 10),
                 balance: 1000,

@@ -1,18 +1,18 @@
 {
     "titlesByRarity": {
-        "Commun": [
+        "common": [
             "l'Apprenti", "le Vagabond", "le Modeste", "le Novice", "le Rêveur",
             "le Malchanceux", "le Perdu", "l'Inconnu", "le Simple", "l'Errant"
         ],
-        "Rare": [
+        "rare": [
             "le Stratège", "l'Insaisissable", "le Mystique", "le Voyageur", "le Tacticien",
             "le Gardien", "le Maître d’Armes", "le Dompteur", "le Silencieux", "l'Érudit"
         ],
-        "Épique": [
+        "epic": [
             "le Champion", "l'Ombre", "le Fléau", "le Héros", "le Colosse",
             "le Dévastateur", "le Sanguinaire", "le Chasseur", "le Revenant", "le Maître de Guerre"
         ],
-        "Légendaire": [
+        "legendary": [
             "l'Élu des Dieux", "le Destructeur", "le Maître des Arcanes", "l'Immortel", "le Titan",
             "le Fléau du Monde", "l'Inarrêtable", "le Dernier Rempart", "l'Exalté", "le Briseur de Royaumes"
         ]

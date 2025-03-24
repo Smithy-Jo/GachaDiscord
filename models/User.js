@@ -1,10 +1,11 @@
+const { knex } = require("./Effect");
+
 class User {
     static knex = null;
 
     constructor(parameters) {
         this.id = parameters.id; // Discord user ID
         this.username = parameters.username;
-        this.discriminator = parameters.discriminator;
         this.email = parameters.email === "" ? null : parameters.email;
         this.password = parameters.password;
         this.balance = parameters.balance;
@@ -24,7 +25,6 @@ class User {
         await User.knex('users').insert({
             id: parameters.id,
             username: parameters.username,
-            discriminator: parameters.discriminator,
             email: parameters.email === "" ? null : parameters.email,
             password: parameters.password,
             balance: parameters.balance,
@@ -35,17 +35,7 @@ class User {
             updated_at: new Date()
         });
 
-        return new User({
-            id: parameters.id,
-            username: parameters.username,
-            discriminator: parameters.discriminator,
-            email: parameters.email,
-            password: parameters.password,
-            balance: parameters.balance,
-            total_summons: parameters.total_summons,
-            epic_pity: parameters.epic_pity,
-            legendary_pity: parameters.legendary_pity
-        });
+        return new User(parameters);
     }
 
     static async deleteUser(user_id) {
@@ -55,7 +45,6 @@ class User {
     async save() {
         return User.knex('users').where('id', this.id).update({
             username: this.username,
-            discriminator: this.discriminator,
             email: this.email,
             password: this.password,
             balance: this.balance,
@@ -78,7 +67,6 @@ class User {
             this.epic_pity += 1;
             this.legendary_pity += 1;
         }
-
     }
 }
 
