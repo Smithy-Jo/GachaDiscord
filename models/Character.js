@@ -139,21 +139,21 @@ class Character {
     
         // Ajout des compétences si elles existent
         if (this.basicSkill) {
-            const field_value = this.basicSkill.effects.map(effect => effect.description).join('\n');
+            const field_value = this.basicSkill.effects.map(effect => `**${effect.name}**\n${effect.description}`).join('\n');
             embed.addFields(
                 { name: "🌀 Compétence de base", value: field_value, inline: false }
             );
         }
     
         if (this.specialSkill) {
-            const field_value = this.basicSkill.effects.map(effect => effect.description).join('\n');
+            const field_value = this.basicSkill.effects.map(effect => `**${effect.name}**\n${effect.description}`).join('\n');
             embed.addFields(
                 { name: "⚡ Compétence spéciale", value: field_value, inline: false }
             );
         }
     
         if (this.ultimateSkill) {
-            const field_value = this.basicSkill.effects.map(effect => effect.description).join('\n');
+            const field_value = this.basicSkill.effects.map(effect => `**${effect.name}**\n${effect.description}`).join('\n');
             embed.addFields(
                 { name: "💣 Compétence ultime", value: field_value, inline: false }
             );

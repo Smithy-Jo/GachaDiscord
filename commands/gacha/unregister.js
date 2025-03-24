@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle } = require('discord.js');
-const { User } = require('../../models');
+const User  = require('../../models/User');
 
 module.exports = {
     category: 'gacha',

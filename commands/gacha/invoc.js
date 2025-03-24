@@ -57,8 +57,15 @@ module.exports = {
                     await i.update({ content: '', components: [], embeds: [character.generateEmbed()] });
 
                 } else if (i.customId === 'btn_invoc_10') {
-                    await i.update({ content: 'Work in progress', components: [] });
-                
+                    let characters = [];
+                    for (let i = 0; i < 10; i++) {
+                        const character = await Character.invoc(userModelInstance);
+                        characters.push(character);
+                        userModelInstance.updatePitySystem(character.rarity);
+                    }
+                    userModelInstance.balance -= 1000;
+                    await userModelInstance.save();
+                    await i.update({ content: '', components: [], embeds: characters.map(character => character.generateEmbed()) });
                 }
 
                 collector.stop();
