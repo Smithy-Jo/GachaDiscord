@@ -6,7 +6,7 @@ class UltimateSkill extends Skill {
     super(parameters);
   }
   
-  static async create(character_element, character_atk, character_rarity) {
+  static async create(character_element, character_pwr, character_rarity) {
 
     const energy_cost = Math.floor(Math.random() * 6) + 5; // 5 - 10
     const cooldown = Math.floor(Math.random() * 4) + 4; // 4 - 7
@@ -33,7 +33,7 @@ class UltimateSkill extends Skill {
     for (let i = 0; i < numberOfEffects; i++) {
         const effect = await Effect.create({
             character_element,
-            character_atk,
+            character_pwr,
             character_rarity,
             skill_id: skill_id[0],
             skill_type: 'ultimate_skill'

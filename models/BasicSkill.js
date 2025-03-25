@@ -6,7 +6,7 @@ class BasicSkill extends Skill {
         super(parameters);
     }
 
-    static async create(character_element, character_atk, character_rarity) {
+    static async create(character_element, character_pwr, character_rarity) {
 
         const skill_id = await this.knex('skills').insert({
             energy_cost: 1,
@@ -16,7 +16,7 @@ class BasicSkill extends Skill {
         const effect = await Effect.create({
             character_element,
             character_rarity,
-            character_atk,
+            character_pwr,
             skill_id: skill_id[0],
             skill_type: 'basic_skill',
             affected_stat: 'hp',

@@ -13,7 +13,7 @@ exports.up = function (knex) {
         table.integer("level").notNullable().defaultTo(1);
         table.integer("xp").notNullable().defaultTo(0);
         table.integer("hp").notNullable();
-        table.integer("atk").notNullable();
+        table.integer("pwr").notNullable();
         table.integer("def").notNullable();
         table.integer("speed").notNullable();
         table.decimal("dodge", 5, 2).notNullable();

@@ -4,7 +4,7 @@
         "probability": 50,
         "stats_range": {
           "hp": { "min": 50, "max": 100 },
-          "atk": { "min": 10, "max": 15 },
+          "pwr": { "min": 10, "max": 15 },
           "def": { "min": 5, "max": 10 },
           "speed": { "min": 5, "max": 10 },
           "dodge": { "min": 1, "max": 5 },
@@ -15,7 +15,7 @@
         "probability": 30,
         "stats_range": {
           "hp": { "min": 100, "max": 130 },
-          "atk": { "min": 15, "max": 25 },
+          "pwr": { "min": 15, "max": 25 },
           "def": { "min": 10, "max": 15 },
           "speed": { "min": 10, "max": 15 },
           "dodge": { "min": 5, "max": 10 },
@@ -26,7 +26,7 @@
         "probability": 15,
         "stats_range": {
           "hp": { "min": 130, "max": 170 },
-          "atk": { "min": 25, "max": 40 },
+          "pwr": { "min": 25, "max": 40 },
           "def": { "min": 15, "max": 25 },
           "speed": { "min": 15, "max": 20 },
           "dodge": { "min": 10, "max": 15 },
@@ -37,7 +37,7 @@
         "probability": 5,
         "stats_range": {
           "hp": { "min": 170, "max": 250 },
-          "atk": { "min": 40, "max": 60 },
+          "pwr": { "min": 40, "max": 60 },
           "def": { "min": 25, "max": 40 },
           "speed": { "min": 20, "max": 30 },
           "dodge": { "min": 15, "max": 20 },

@@ -59,7 +59,7 @@
                     "Érosion"
                 ]
             },
-            "atk": {
+            "pwr": {
                 "instant": [
                     "Riposte",
                     "Réduction",
@@ -139,7 +139,7 @@
                     "Marque"
                 ]
             },
-            "atk": {
+            "pwr": {
                 "instant": [
                     "Surge",
                     "Élan",

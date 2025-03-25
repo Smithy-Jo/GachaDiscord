@@ -45,13 +45,13 @@ class Effect {
             : `Diminue **${this.affected_stat}** de **${this.value}%** sur l'ennemi pendant **${this.duration}** tours.`;
     }
 
-    static async create(parameters) { // { character_element, character_atk, character_rarity, affected_stat, target, duration, value, skill_type, skill_ernergy_cost }
+    static async create(parameters) { // { character_element, character_pwr, character_rarity, affected_stat, target, duration, value, skill_type, skill_ernergy_cost }
         const effect = new Effect();
 
         effect.skill_id = parameters.skill_id;
         
         effect.element = parameters.character_element ?? getRandomElement([parameters.character_element, 'neutral']);
-        effect.affected_stat = parameters.affected_stat ?? getRandomElement(['hp', 'atk', 'def', 'speed', 'dodge', 'crit']);
+        effect.affected_stat = parameters.affected_stat ?? getRandomElement(['hp', 'pwr', 'def', 'speed', 'dodge', 'crit']);
         effect.target = parameters.target ?? getRandomElement(['self', 'enemy']);
         
         const multiplier = rarityMultipliers[parameters.character_rarity] ?? 1;
@@ -59,18 +59,18 @@ class Effect {
         effect.skill_type = parameters.skill_type;
         if (effect.skill_type === 'basic_skill') {
             effect.duration = 1;
-            const atkFactor = parameters.character_atk * multiplier * randomFactor;
-            effect.value = parameters.value ?? Math.round(atkFactor);
+            const pwrFactor = parameters.character_pwr * multiplier * randomFactor;
+            effect.value = parameters.value ?? Math.round(pwrFactor);
         }
         else if (effect.skill_type === 'special_skill') {
             effect.duration = getRandomElement([2, 3]); // Durée aléatoire entre 2 et 3
-            const atkFactor = parameters.character_atk * multiplier * ((Math.random() * 0.3) + 1.2); // 120% - 150%
-            effect.value = parameters.value ?? Math.round(atkFactor);
+            const pwrFactor = parameters.character_pwr * multiplier * ((Math.random() * 0.3) + 1.2); // 120% - 150%
+            effect.value = parameters.value ?? Math.round(pwrFactor);
         }
         else if (effect.skill_type === 'ultimate_skill') {
             effect.duration = getRandomElement([3, 4]); // Durée aléatoire entre 3 et 4
-            const atkFactor = parameters.character_atk * multiplier * ((Math.random() * 0.4) + 1.8); // 180% - 220%
-            effect.value = parameters.value ?? Math.round(atkFactor);
+            const pwrFactor = parameters.character_pwr * multiplier * ((Math.random() * 0.4) + 1.8); // 180% - 220%
+            effect.value = parameters.value ?? Math.round(pwrFactor);
         }
 
         effect.name = effect.generateName();

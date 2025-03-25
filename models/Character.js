@@ -17,7 +17,7 @@ class Character {
         this.level = parameters.level || 1;
         this.xp = parameters.xp || 0;
         this.hp = parameters.hp;
-        this.atk = parameters.atk;
+        this.pwr = parameters.pwr;
         this.def = parameters.def;
         this.speed = parameters.speed;
         this.dodge = parameters.dodge;
@@ -34,21 +34,21 @@ class Character {
 
         const stats_range = configDrop.rarity_rates[rarity].stats_range;
         const hp = this.generateRandomStat(stats_range.hp.min, stats_range.hp.max);
-        const atk = this.generateRandomStat(stats_range.atk.min, stats_range.atk.max);
+        const pwr = this.generateRandomStat(stats_range.pwr.min, stats_range.pwr.max);
         const def = this.generateRandomStat(stats_range.def.min, stats_range.def.max);
         const speed = this.generateRandomStat(stats_range.speed.min, stats_range.speed.max);
         const dodge = this.generateRandomStat(stats_range.dodge.min, stats_range.dodge.max) / 100;
         const crit = this.generateRandomStat(stats_range.crit.min, stats_range.crit.max) / 10;
         const element = ['fire', 'water', 'earth'][Math.floor(Math.random() * 3)];
 
-        const basicSkill = await BasicSkill.create(element, atk, rarity);
+        const basicSkill = await BasicSkill.create(element, pwr, rarity);
         let specialSkill = null;
         let ultimateSkill = null;
         if (rarity === 'rare') {
-            specialSkill = await SpecialSkill.create(element, atk, rarity);
+            specialSkill = await SpecialSkill.create(element, pwr, rarity);
         } else if (rarity === 'legendary' || rarity === 'epic') {
-            specialSkill = await SpecialSkill.create(element, atk, rarity);
-            ultimateSkill = await UltimateSkill.create(element, atk, rarity);
+            specialSkill = await SpecialSkill.create(element, pwr, rarity);
+            ultimateSkill = await UltimateSkill.create(element, pwr, rarity);
         }
 
         const character_id = await Character.knex('characters').insert({
@@ -56,7 +56,7 @@ class Character {
             name,
             rarity,
             hp,
-            atk,
+            pwr,
             def,
             speed,
             dodge,
@@ -73,7 +73,7 @@ class Character {
             name,
             rarity,
             hp,
-            atk,
+            pwr,
             def,
             speed,
             dodge,
@@ -120,7 +120,7 @@ class Character {
             name: this.name,
             rarity: this.rarity,
             hp: this.hp,
-            atk: this.atk,
+            pwr: this.pwr,
             def: this.def,
             speed: this.speed,
             dodge: this.dodge,
@@ -136,7 +136,7 @@ class Character {
             .setColor(this.getRarityColor())
             .addFields(
                 { name: "❤️ PV", value: `${this.hp}`, inline: true },
-                { name: "⚔️ ATK", value: `${this.atk}`, inline: true },
+                { name: "⚔️ PWR", value: `${this.pwr}`, inline: true },
                 { name: "🛡️ DEF", value: `${this.def}`, inline: true },
                 { name: "💨 Vitesse", value: `${this.speed}`, inline: true },
                 { name: "🎯 Esquive", value: `${(this.dodge * 100).toFixed(1)}%`, inline: true },

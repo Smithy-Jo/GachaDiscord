@@ -5,7 +5,7 @@ class SpecialSkill extends Skill {
     constructor(parameters) {
         super(parameters);
     }
-    static async create(character_element, character_atk, character_rarity) {
+    static async create(character_element, character_pwr, character_rarity) {
 
         const energy_cost = Math.floor(Math.random() * 4) + 1; // 1 - 4
         const cooldown = Math.floor(Math.random() * 4) + 2; // 2 - 3
@@ -32,7 +32,7 @@ class SpecialSkill extends Skill {
         for (let i = 0; i < numberOfEffects; i++) {
             const effect = await Effect.create({
                 character_element,
-                character_atk,
+                character_pwr,
                 character_rarity,
                 skill_id: skill_id[0],
                 skill_type: 'special_skill'

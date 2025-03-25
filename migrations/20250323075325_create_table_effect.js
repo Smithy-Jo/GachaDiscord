@@ -9,7 +9,7 @@ exports.up = function (knex) {
         table.string('name').notNullable();
         table.text('description').notNullable(); 
         table.enum('element', ['neutral', 'fire', 'water', 'earth']).notNullable();
-        table.enum('affected_stat', ['hp', 'atk', 'def', 'speed', 'dodge', 'crit']); 
+        table.enum('affected_stat', ['hp', 'pwr', 'def', 'speed', 'dodge', 'crit']); 
         table.enum('target', ['self', 'enemy']).notNullable();
         table.integer('duration').notNullable();
         table.integer('value').notNullable(); 
