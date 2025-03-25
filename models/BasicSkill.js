@@ -26,7 +26,6 @@ class BasicSkill extends Skill {
 
         return new BasicSkill({
             id: skill_id[0],
-            level: 1,
             energy_cost: 1,
             cooldown: 0,
             effects: [effect],

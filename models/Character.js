@@ -44,9 +44,9 @@ class Character {
         const basicSkill = await BasicSkill.create(element, atk, rarity);
         let specialSkill = null;
         let ultimateSkill = null;
-        if (rarity === 'epic') {
+        if (rarity === 'rare') {
             specialSkill = await SpecialSkill.create(element, atk, rarity);
-        } else if (rarity === 'legendary') {
+        } else if (rarity === 'legendary' || rarity === 'epic') {
             specialSkill = await SpecialSkill.create(element, atk, rarity);
             ultimateSkill = await UltimateSkill.create(element, atk, rarity);
         }

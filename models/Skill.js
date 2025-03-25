@@ -4,7 +4,7 @@ class Skill {
 
     constructor(parameters) {
         this.id = parameters.id;
-        this.level = parameters.level;
+        this.level = parameters.level ?? 1;
         this.energy_cost = parameters.energy_cost;
         this.cooldown = parameters.cooldown;
         this.effects = parameters.effects;

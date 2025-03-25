@@ -14,22 +14,33 @@ class SpecialSkill extends Skill {
             energy_cost,
             cooldown,
         });
-        
-        const effect = await Effect.create({
-            character_element,
-            character_atk,
-            character_rarity,
-            skill_id: skill_id[0],
-            skill_type: 'special_skill'
-        });
 
-        return new SpecialSkill({
+        const special_skill = new SpecialSkill({
             id: skill_id[0],
             level: 1,
             energy_cost,
             cooldown,
-            effects: [effect],
         });
+
+        let numberOfEffects = 1;
+        if (character_rarity === 'epic')
+            numberOfEffects = Math.floor(Math.random() * 2) + 1; // 1 - 2
+
+        else if (character_rarity === 'legendary')
+            numberOfEffects = 2
+
+        for (let i = 0; i < numberOfEffects; i++) {
+            const effect = await Effect.create({
+                character_element,
+                character_atk,
+                character_rarity,
+                skill_id: skill_id[0],
+                skill_type: 'special_skill'
+            });
+            special_skill.effects.push(effect);
+        }
+
+        return special_skill;
     }
 }
 
