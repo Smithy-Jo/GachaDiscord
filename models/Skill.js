@@ -7,7 +7,7 @@ class Skill {
         this.level = parameters.level ?? 1;
         this.energy_cost = parameters.energy_cost;
         this.cooldown = parameters.cooldown;
-        this.effects = parameters.effects;
+        this.effects = parameters.effects ?? [];
     }
 
     async save() {

@@ -36,20 +36,12 @@ class UltimateSkill extends Skill {
             character_atk,
             character_rarity,
             skill_id: skill_id[0],
-            skill_type: 'special_skill'
+            skill_type: 'ultimate_skill'
         });
-        special_skill.effects.push(effect);
+        ultimate_skill.effects.push(effect);
     }
 
-    const effect = await Effect.create({
-        character_element,
-        character_atk,
-        character_rarity,
-        skill_id: skill_id[0],
-        skill_type: 'ultimate_skill'
-    });
-
-    return 
+    return ultimate_skill;
 }
 
 }
