@@ -41,9 +41,15 @@ class Character {
         const crit = this.generateRandomStat(stats_range.crit.min, stats_range.crit.max) / 10;
         const element = ['fire', 'water', 'earth'][Math.floor(Math.random() * 3)];
 
-        const basicSkill = await BasicSkill.create(element, atk);
-        // const specialSkill = await SpecialSkill.create(element, character_id[0], atk);
-        // const ultimateSkill = await UltimateSkill.create(element, character_id[0], atk);
+        const basicSkill = await BasicSkill.create(element, atk, rarity);
+        let specialSkill = null;
+        let ultimateSkill = null;
+        if (rarity === 'epic') {
+            specialSkill = await SpecialSkill.create(element, atk, rarity);
+        } else if (rarity === 'legendary') {
+            specialSkill = await SpecialSkill.create(element, atk, rarity);
+            ultimateSkill = await UltimateSkill.create(element, atk, rarity);
+        }
 
         const character_id = await Character.knex('characters').insert({
             user_id: user.id,
@@ -56,9 +62,9 @@ class Character {
             dodge,
             crit,
             element,
-            basic_skill_id: basicSkill.id
-            // special_skill_id: specialSkill.id,
-            // ultimate_skill_id: ultimateSkill.id
+            basic_skill_id: basicSkill.id,
+            special_skill_id: specialSkill ? specialSkill.id : null,
+            ultimate_skill_id: ultimateSkill ? ultimateSkill.id : null,
         });
 
         return new Character({
@@ -73,8 +79,8 @@ class Character {
             dodge,
             crit,
             element,
-            basicSkill
-            // specialSkill,
+            basicSkill,
+            specialSkill,
             // ultimateSkill
         });
     }
@@ -136,7 +142,7 @@ class Character {
                 { name: "🎯 Esquive", value: `${(this.dodge * 100).toFixed(1)}%`, inline: true },
                 { name: "💥 Critique", value: `${(this.crit * 10).toFixed(1)}%`, inline: true }
             );
-    
+
         // Ajout des compétences si elles existent
         if (this.basicSkill) {
             const field_value = this.basicSkill.effects.map(effect => `**${effect.name}**\n${effect.description}`).join('\n');
@@ -144,25 +150,25 @@ class Character {
                 { name: "🌀 Compétence de base", value: field_value, inline: false }
             );
         }
-    
+
         if (this.specialSkill) {
-            const field_value = this.basicSkill.effects.map(effect => `**${effect.name}**\n${effect.description}`).join('\n');
+            const field_value = this.specialSkill.effects.map(effect => `**${effect.name}**\n${effect.description}`).join('\n');
             embed.addFields(
                 { name: "⚡ Compétence spéciale", value: field_value, inline: false }
             );
         }
-    
+
         if (this.ultimateSkill) {
-            const field_value = this.basicSkill.effects.map(effect => `**${effect.name}**\n${effect.description}`).join('\n');
+            const field_value = this.ultimateSkill.effects.map(effect => `**${effect.name}**\n${effect.description}`).join('\n');
             embed.addFields(
                 { name: "💣 Compétence ultime", value: field_value, inline: false }
             );
         }
-    
+
         embed.setTimestamp();
         return embed;
     }
-    
+
 
     formatRarity() {
         const emojis = {

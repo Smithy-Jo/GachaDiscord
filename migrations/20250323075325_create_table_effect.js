@@ -5,6 +5,7 @@
 exports.up = function (knex) {
     return knex.schema.createTable('effects', (table) => {
         table.increments('id').primary();
+        table.integer('skill_id').unsigned().notNullable().references('id').inTable('skills').onDelete('CASCADE');
         table.string('name').notNullable();
         table.text('description').notNullable(); 
         table.enum('element', ['neutral', 'fire', 'water', 'earth']).notNullable();

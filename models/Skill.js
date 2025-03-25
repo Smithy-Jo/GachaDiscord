@@ -5,8 +5,6 @@ class Skill {
     constructor(parameters) {
         this.id = parameters.id;
         this.level = parameters.level;
-        this.skill_type = parameters.skill_type;
-        this.element = parameters.element;
         this.energy_cost = parameters.energy_cost;
         this.cooldown = parameters.cooldown;
         this.effects = parameters.effects;
@@ -18,10 +16,8 @@ class Skill {
 
         return Skill.knex('skills').update({
             level: this.level,
-            skill_type: this.skill_type,
-            element: this.element,
-            energy_cost: this.energy_cost,
             cooldown: this.cooldown,
+            energy_cost: this.energy_cost,
             updated_at: new Date()
         }).where('id', this.id);
     }

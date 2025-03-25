@@ -1,16 +1,18 @@
+const { range } = require('discord.js');
 const namesConfig = require('../config/effectNames.json');
 
 function getRandomElement(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
-
+const rarityMultipliers = { common: 0.9, rare: 1.0, epic: 1.0, legendary: 1.2 };
 
 class Effect {
     static knex = null;
 
     constructor() {
         this.id = null;
+        this.skill_id = null;
         this.name = null;
         this.description = null;
         this.element = null;
@@ -25,13 +27,10 @@ class Effect {
         let prefix_index = null;
         if (this.duration > 1) prefix_index = 'durable';
         else prefix_index = 'instant';
-        // console.log(`target : ${this.target}`);
-        // console.log(`affected_stat : ${this.affected_stat}`);
-        // console.log(`prefix_index : ${prefix_index}`);
+        
         const prefix = getRandomElement(namesConfig.prefixes[this.target][this.affected_stat][prefix_index]);
         const cores = getRandomElement(namesConfig.cores[this.element]);
-        const suffix = getRandomElement(namesConfig.suffixes[this.skill_type]);  
-
+        const suffix = getRandomElement(namesConfig.suffixes[this.skill_type]);
         return `${prefix} ${cores} ${suffix}`.trim();
     }
 
@@ -46,20 +45,39 @@ class Effect {
             : `Diminue **${this.affected_stat}** de **${this.value}%** sur l'ennemi pendant **${this.duration}** tours.`;
     }
 
-    static async create(parameters) {
+    static async create(parameters) { // { character_element, character_atk, character_rarity, affected_stat, target, duration, value, skill_type, skill_ernergy_cost }
         const effect = new Effect();
+
+        effect.skill_id = parameters.skill_id;
         
-        effect.element = parameters.element;
-        effect.affected_stat = parameters.affected_stat;
-        effect.target = parameters.target;
-        effect.duration = parameters.duration;
-        effect.value = parameters.value;
+        effect.element = parameters.character_element ?? getRandomElement([parameters.character_element, 'neutral']);
+        effect.affected_stat = parameters.affected_stat ?? getRandomElement(['hp', 'atk', 'def', 'speed', 'dodge', 'crit']);
+        effect.target = parameters.target ?? getRandomElement(['self', 'enemy']);
+        
+        const multiplier = rarityMultipliers[parameters.character_rarity] ?? 1;
+        const randomFactor = (Math.random() * 0.2) + 0.9; // 90% - 110%
         effect.skill_type = parameters.skill_type;
+        if (effect.skill_type === 'basic_skill') {
+            effect.duration = 1;
+            const atkFactor = parameters.character_atk * multiplier * randomFactor;
+            effect.value = parameters.value ?? Math.round(atkFactor);
+        }
+        else if (effect.skill_type === 'special_skill') {
+            effect.duration = getRandomElement([2, 3]); // Durée aléatoire entre 2 et 3
+            const atkFactor = parameters.character_atk * multiplier * ((Math.random() * 0.3) + 1.2); // 120% - 150%
+            effect.value = parameters.value ?? Math.round(atkFactor);
+        }
+        else if (effect.skill_type === 'ultimate_skill') {
+            effect.duration = getRandomElement([3, 4]); // Durée aléatoire entre 3 et 4
+            const atkFactor = parameters.character_atk * multiplier * ((Math.random() * 0.4) + 1.8); // 180% - 220%
+            effect.value = parameters.value ?? Math.round(atkFactor);
+        }
 
         effect.name = effect.generateName();
         effect.description = effect.generateDescription();
 
         const effect_id = await Effect.knex('effects').insert({
+            skill_id: effect.skill_id,
             name: effect.name,
             description: effect.description,
             element: effect.element,
@@ -69,7 +87,7 @@ class Effect {
             value: effect.value,
             created_at: new Date(),
             updated_at: new Date()
-        }); // Renvoie l'ID généré par la base de données;
+        });
 
         effect.id = effect_id[0];
 
@@ -78,6 +96,7 @@ class Effect {
 
     async save() {
         return Effect.knex('effects').update({
+            skill_id: this.skill_id,
             name: this.name,
             description: this.description,
             element: this.element,
@@ -86,7 +105,7 @@ class Effect {
             duration: this.duration,
             value: this.value,
             updated_at: new Date()
-        }).where('id', this.id) // Renvoie l'ID généré par la base de données;
+        }).where('id', this.id)
     }
 }
 
