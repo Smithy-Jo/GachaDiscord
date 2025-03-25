@@ -1,7 +1,7 @@
 require('dotenv').config();
+require('./models/index.js');
 
 const { Client, GatewayIntentBits } = require('discord.js');
-require('./models/index.js');
 
 const commandLoader = require('./utils/CommandLoader.js');
 const eventLoader = require('./utils/EventLoader.js');
@@ -11,6 +11,7 @@ const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,              // Permet d'accéder aux guildes
         GatewayIntentBits.GuildMessages,       // Permet d'accéder aux messages dans un serveur
+        GatewayIntentBits.DirectMessages,      // Permet de recevoir des DMs
         GatewayIntentBits.MessageContent,      // Permet d'obtenir le contenu complet des messages
         GatewayIntentBits.GuildMembers,        // Permet d'obtenir des informations sur les membres
     ],
@@ -23,4 +24,5 @@ const client = new Client({
     await eventLoader.loadEvents(client);
 
     await client.login(process.env.DISCORD_TOKEN);
+
 })();

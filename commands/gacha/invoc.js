@@ -29,7 +29,7 @@ module.exports = {
             );
 
         const message = await interaction.reply({
-            content: `Vous avez ${userModelInstance.balance} pièces. Combien voulez-vous invoquer ?`,
+            content: `${interaction.user.username}. Combien voulez-vous invoquer ?`,
             components: [row],
         });
         const collector = message.createMessageComponentCollector({
@@ -38,7 +38,7 @@ module.exports = {
         });
 
         collector.on('collect', async i => {
-
+            let characters = [];
             if ((i.customId === 'btn_invoc_1' && userModelInstance.balance < 100) || (i.customId === 'btn_invoc_10' && userModelInstance.balance < 1000)) {
                 await i.update({ content: 'Vous n\'avez pas assez de pièces pour invoquer !', components: [] });
 
@@ -47,11 +47,9 @@ module.exports = {
                 userModelInstance.balance -= 100;
                 userModelInstance.updatePitySystem(character.rarity);
                 await userModelInstance.save();
-                await i.update({ content: '', components: [], embeds: [character.generateEmbed()] });
+                characters = [character];
 
             } else if (i.customId === 'btn_invoc_10') {
-                // Invocation de 10 personnages
-                let characters = [];
                 for (let i = 0; i < 10; i++) {
                     const character = await Character.invoc(userModelInstance);
                     characters.push(character);
@@ -59,23 +57,25 @@ module.exports = {
                 }
                 userModelInstance.balance -= 1000;
                 await userModelInstance.save();
-                // Envoie des 10 personnages dans le chanel de l'interaction
-                await i.update({
-                    content: `${i.user.username} a invoqué 10 personnages !\n\n` +
-                        characters.map(character => `${character.name} ${character.formatRarity()}`).join('\n'),
-                    components: []
-                });
-                // Envoie des details des 10 personnages dans un message privé à l'utilisateur
-                try {
-                    await interaction.user.send({
-                        content: `Vous avez invoqué 10 personnages !`,
-                        embeds: characters.map(character => character.generateEmbed())
-                    });
-                }
-                catch (error) {
-                    await interaction.followUp('Impossible de vous envoyer les détails des personnages en message privé.');
-                }
+            }
 
+            // Envoie du recap du ou des personnages invoqués dans le chat
+            await i.update({
+                content: `${i.user.username} a invoqué ${characters.length} personnage(s) !\n\n` +
+                    characters.map(character => `${character.name} ${character.formatRarity()}`).join('\n'),
+                components: []
+            });
+            // Envoie des details du ou des personnage(s) dans un message privé à l'utilisateur
+            try {
+                await interaction.user.send({
+                    content: `Vous avez invoqué ${characters.length} personnage(s) !`,
+                    embeds: characters.map(character => character.generateEmbed())
+                });
+            }
+            catch (error) {
+                await interaction.followUp('Impossible de vous envoyer les détails des personnages en message privé.\n' +
+                    'Verifiez vos paramètres de confidentialité.\nOu contactez un administrateur.'
+                );
             }
 
             collector.stop();
