@@ -1,6 +1,6 @@
 {
-    "suffixes": {
-        "basic_skill": [
+    "suffixes": [
+        [
             "Oublié",
             "Dégradé",
             "Médiocre",
@@ -8,7 +8,7 @@
             "Débutant",
             "Faible"
         ],
-        "special_skill": [
+        [
             "Apprenti",
             "Intermédiaire",
             "Adepte",
@@ -16,7 +16,7 @@
             "Expérimenté",
             "Maîtrisé"
         ],
-        "ultimate_skill": [
+        [
             "Expert",
             "Maître",
             "Légendaire",
@@ -25,7 +25,7 @@
             "Divin",
             "Transcendant"
         ]
-    },
+    ],
     "prefixes": {
         "enemy": {
             "hp": {

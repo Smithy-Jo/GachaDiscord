@@ -4,38 +4,50 @@ class User {
     static knex = null;
 
     constructor(parameters) {
-        this.id = parameters.id; // Discord user ID
-        this.username = parameters.username;
-        this.email = parameters.email === "" ? null : parameters.email;
-        this.password = parameters.password;
-        this.balance = parameters.balance;
-        this.total_summons = parameters.total_summons ? parameters.total_summons : 0;
-        this.epic_pity = parameters.epic_pity ? parameters.epic_pity : 0;
-        this.legendary_pity = parameters.legendary_pity ? parameters.legendary_pity : 0;
+        // Variable de la base de données
+        this.id = parameters.id ?? null; // Discord user ID
+        this.username = parameters.username ?? null;
+        this.email = parameters.email !== "" ? parameters.email : null;
+        this.password = parameters.password ?? null;
+        this.balance = parameters.balance ?? 1000;
+        this.total_summons = parameters.total_summons ?? 0;
+        this.epic_pity = parameters.epic_pity ?? 0;
+        this.legendary_pity = parameters.legendary_pity ?? 0;
+
+        // Variables propres à l'objet
+        this.characters = parameters.characters ?? [];
     }
 
     static async getUserById(user_id) {
         const user = await User.knex('users').where('id', user_id).first();
         if (!user) return null;
-
         return new User(user);
     }
 
+    async getCharacters() {
+        const characters = await User.knex('characters').where('user_id', this.id);
+        for (const character of characters) {
+
+        }
+    }
+
     static async create(parameters) {
+        const user = new User(parameters);
+
         await User.knex('users').insert({
-            id: parameters.id,
-            username: parameters.username,
-            email: parameters.email === "" ? null : parameters.email,
-            password: parameters.password,
-            balance: parameters.balance,
-            total_summons: parameters.total_summons,
-            epic_pity: parameters.epic_pity,
-            legendary_pity: parameters.legendary_pity,
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            password: user.password,
+            balance: user.balance,
+            total_summons: user.total_summons,
+            epic_pity: user.epic_pity,
+            legendary_pity: user.legendary_pity,
             created_at: new Date(),
             updated_at: new Date()
         });
 
-        return new User(parameters);
+        return user;
     }
 
     static async deleteUser(user_id) {

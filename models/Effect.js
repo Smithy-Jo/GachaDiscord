@@ -1,40 +1,107 @@
-const { range } = require('discord.js');
 const namesConfig = require('../config/effectNames.json');
+const BasicSkill = require('./BasicSkill');
+const SpecialSkill = require('./SpecialSkill');
+const UltimateSkill = require('./UltimateSkill');
 
 function getRandomElement(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
-const rarityMultipliers = { common: 0.9, rare: 1.0, epic: 1.0, legendary: 1.2 };
-
 class Effect {
     static knex = null;
 
-    constructor() {
-        this.id = null;
-        this.skill_id = null;
-        this.name = null;
-        this.description = null;
-        this.element = null;
-        this.affected_stat = null;
-        this.target = null;
-        this.duration = null;
-        this.value = null;
-        this.skill_type = null;
+    constructor(parameters) {
+        // Variables de la base de données
+        this.id = parameters.id ?? null;
+        this.element = parameters.element ?? this.generateElement();
+        this.affected_stat = parameters.affected_stat ?? this.generateAffectedStat();
+        this.target = parameters.target ?? this.generateTarget();
+        this.duration = parameters.duration ?? this.generateDuration();
+        this.value = parameters.value ?? this.generateValue();
+        this.name = parameters.name ?? this.generateName();
+        this.description = parameters.description ?? this.getDescription();
+
+        // Variables propres à l'objet
+        this.skill = parameters.skill ?? null;
+    }
+
+    static async create(skill) {
+        const effect = new Effect({ skill });
+
+        const effect_id = await Effect.knex('effects').insert({
+            name: effect.name,
+            description: effect.description,
+            element: effect.element,
+            affected_stat: effect.affected_stat,
+            target: effect.target,  
+            duration: effect.duration,
+            value: effect.value,
+            skill_id: effect.skill.id,
+            created_at: new Date(),
+            updated_at: new Date()
+        });
+
+        effect.id = effect_id[0];
+
+        return effect;
+    }
+    
+    generateElement() {
+        if (this.skill.character.rarity === 'common' || this.skill.character.rarity === 'rare')
+            return this.skill.character.element;
+        else
+            return getRandomElement([this.skill.character.element, 'neutral']);
+    }
+
+    generateTarget() {
+        if (this.skill.type instanceof BasicSkill) return 'enemy';
+        else return getRandomElement(['self', 'enemy'])
+    }
+
+    generateAffectedStat() {
+        if (this.skill.type instanceof BasicSkill) return 'hp';
+        else return getRandomElement(['hp', 'pwr', 'def', 'speed', 'dodge', 'crit']);
+    }
+
+    generateDuration() {
+        if (this.skill.type instanceof BasicSkill) return 1;
+        if (this.skill.type instanceof SpecialSkill) return getRandomElement([2, 3]);
+        if (this.skill.type instanceof UltimateSkill) return getRandomElement([3, 4]);
+    }
+
+    generateValue() {
+        const randomFactor = (Math.random() * 0.2) + 0.9; // 90% - 110%
+        const rarityMultipliers = { common: 0.9, rare: 1.0, epic: 1.0, legendary: 1.2 };
+        const multiplier = rarityMultipliers[this.skill.character.rarity];
+        if (this.skill.type instanceof BasicSkill) {
+            const pwrFactor = this.skill.character.pwr * multiplier * randomFactor;
+            return this.value ?? Math.round(pwrFactor);
+        } else if (this.skill.type instanceof SpecialSkill) {
+            const pwrFactor = this.skill.character.pwr * multiplier * ((Math.random() * 0.3) + 1.2); // 120% - 150%
+            return this.value ?? Math.round(pwrFactor);
+        } else if (this.skill.type instanceof UltimateSkill) {
+            const pwrFactor = this.skill.character.pwr * multiplier * ((Math.random() * 0.4) + 1.8); // 180% - 220%
+            return this.value ?? Math.round(pwrFactor);
+        }
     }
 
     generateName() {
         let prefix_index = null;
         if (this.duration > 1) prefix_index = 'durable';
         else prefix_index = 'instant';
-        
-        const prefix = getRandomElement(namesConfig.prefixes[this.target][this.affected_stat][prefix_index]);
-        const cores = getRandomElement(namesConfig.cores[this.element]);
-        const suffix = getRandomElement(namesConfig.suffixes[this.skill_type]);
+
+        const prefix_array = namesConfig.prefixes[this.target][this.affected_stat][prefix_index];
+        const cores_array = namesConfig.cores[this.element];
+        const suffix_array = namesConfig.suffixes[this.skill.level - 1];
+
+        const prefix = getRandomElement(prefix_array);
+        const cores = getRandomElement(cores_array);
+        const suffix = getRandomElement(suffix_array);
+
         return `${prefix} ${cores} ${suffix}`.trim();
     }
 
-    generateDescription() {
+    getDescription() {
         if (this.affected_stat === 'hp') {
             return this.target === 'enemy'
                 ? `Inflige **${this.value}** dégâts de type **${this.element}** à l'ennemi.`
@@ -45,58 +112,10 @@ class Effect {
             : `Diminue **${this.affected_stat}** de **${this.value}%** sur l'ennemi pendant **${this.duration}** tours.`;
     }
 
-    static async create(parameters) { // { character_element, character_pwr, character_rarity, affected_stat, target, duration, value, skill_type, skill_ernergy_cost }
-        const effect = new Effect();
-
-        effect.skill_id = parameters.skill_id;
-        
-        effect.element = parameters.character_element ?? getRandomElement([parameters.character_element, 'neutral']);
-        effect.affected_stat = parameters.affected_stat ?? getRandomElement(['hp', 'pwr', 'def', 'speed', 'dodge', 'crit']);
-        effect.target = parameters.target ?? getRandomElement(['self', 'enemy']);
-        
-        const multiplier = rarityMultipliers[parameters.character_rarity] ?? 1;
-        const randomFactor = (Math.random() * 0.2) + 0.9; // 90% - 110%
-        effect.skill_type = parameters.skill_type;
-        if (effect.skill_type === 'basic_skill') {
-            effect.duration = 1;
-            const pwrFactor = parameters.character_pwr * multiplier * randomFactor;
-            effect.value = parameters.value ?? Math.round(pwrFactor);
-        }
-        else if (effect.skill_type === 'special_skill') {
-            effect.duration = getRandomElement([2, 3]); // Durée aléatoire entre 2 et 3
-            const pwrFactor = parameters.character_pwr * multiplier * ((Math.random() * 0.3) + 1.2); // 120% - 150%
-            effect.value = parameters.value ?? Math.round(pwrFactor);
-        }
-        else if (effect.skill_type === 'ultimate_skill') {
-            effect.duration = getRandomElement([3, 4]); // Durée aléatoire entre 3 et 4
-            const pwrFactor = parameters.character_pwr * multiplier * ((Math.random() * 0.4) + 1.8); // 180% - 220%
-            effect.value = parameters.value ?? Math.round(pwrFactor);
-        }
-
-        effect.name = effect.generateName();
-        effect.description = effect.generateDescription();
-
-        const effect_id = await Effect.knex('effects').insert({
-            skill_id: effect.skill_id,
-            name: effect.name,
-            description: effect.description,
-            element: effect.element,
-            affected_stat: effect.affected_stat,
-            target: effect.target,
-            duration: effect.duration,
-            value: effect.value,
-            created_at: new Date(),
-            updated_at: new Date()
-        });
-
-        effect.id = effect_id[0];
-
-        return effect;
-    }
+  
 
     async save() {
         return Effect.knex('effects').update({
-            skill_id: this.skill_id,
             name: this.name,
             description: this.description,
             element: this.element,
@@ -104,9 +123,20 @@ class Effect {
             target: this.target,
             duration: this.duration,
             value: this.value,
+            skill_id: this.skill.id,
             updated_at: new Date()
         }).where('id', this.id)
     }
+
+    upgrade() {
+        this.value = this.generateValue(); // wip: work in progress
+        this.description = this.getDescription();
+    }
+
+    levelup() {
+        this.name = this.name.split(' ').slice(0, -1).join(' ') + ' ' + getRandomElement(namesConfig.suffixes[this.skill.level - 1]);
+    }
+
 }
 
 module.exports = Effect;

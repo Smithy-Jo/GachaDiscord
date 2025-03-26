@@ -6,12 +6,12 @@ const User = require('../../models/User');
 module.exports = {
     category: 'gacha',
     data: new SlashCommandBuilder()
-        .setName('invoc')
+        .setName('summon')
         .setDescription('Invoque un personnage.'),
     async execute(interaction) {
-        const userModelInstance = await User.getUserById(interaction.user.id);
+        const user = await User.getUserById(interaction.user.id);
 
-        if (!userModelInstance) {
+        if (!user) {
             return interaction.reply("Vous n'avez pas de compte. Faites `/register` d'abord !");
         }
 
@@ -19,11 +19,11 @@ module.exports = {
         const row = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId('btn_invoc_1')
+                    .setCustomId('btn_summon_1')
                     .setLabel('1x')
                     .setStyle(ButtonStyle.Secondary),
                 new ButtonBuilder()
-                    .setCustomId('btn_invoc_10')
+                    .setCustomId('btn_summon_10')
                     .setLabel('10x')
                     .setStyle(ButtonStyle.Primary),
             );
@@ -39,24 +39,24 @@ module.exports = {
 
         collector.on('collect', async i => {
             let characters = [];
-            if ((i.customId === 'btn_invoc_1' && userModelInstance.balance < 100) || (i.customId === 'btn_invoc_10' && userModelInstance.balance < 1000)) {
+            if ((i.customId === 'btn_summon_1' && user.balance < 100) || (i.customId === 'btn_summon_10' && user.balance < 1000)) {
                 await i.update({ content: 'Vous n\'avez pas assez de pièces pour invoquer !', components: [] });
 
-            } else if (i.customId === 'btn_invoc_1') {
-                const character = await Character.invoc(userModelInstance);
-                userModelInstance.balance -= 100;
-                userModelInstance.updatePitySystem(character.rarity);
-                await userModelInstance.save();
+            } else if (i.customId === 'btn_summon_1') {
+                const character = await Character.create(user);
+                user.balance -= 100;
+                user.updatePitySystem(character.rarity);
+                await user.save();
                 characters = [character];
 
-            } else if (i.customId === 'btn_invoc_10') {
+            } else if (i.customId === 'btn_summon_10') {
                 for (let i = 0; i < 10; i++) {
-                    const character = await Character.invoc(userModelInstance);
+                    const character = await Character.create(user);
                     characters.push(character);
-                    userModelInstance.updatePitySystem(character.rarity);
+                    user.updatePitySystem(character.rarity);
                 }
-                userModelInstance.balance -= 1000;
-                await userModelInstance.save();
+                user.balance -= 1000;
+                await user.save();
             }
 
             // Envoie du recap du ou des personnages invoqués dans le chat

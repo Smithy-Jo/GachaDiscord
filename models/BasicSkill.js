@@ -4,32 +4,25 @@ const Effect = require("./Effect");
 class BasicSkill extends Skill {
     constructor(parameters) {
         super(parameters);
+        this.energy_cost = parameters.energy_cost ?? 0;
+        this.cooldown = parameters.cooldown ?? 0;
     }
 
-    static async create(character_element, character_pwr, character_rarity) {
+    static async create(character) {
 
-        const skill_id = await this.knex('skills').insert({
-            energy_cost: 1,
-            cooldown: 0,
+        const basicSkill = new BasicSkill({ character });
+
+        basicSkill.id = await this.knex('skills').insert({
+            energy_cost: basicSkill.energy_cost,
+            cooldown: basicSkill.cooldown,
+            level: basicSkill.level 
         });
 
-        const effect = await Effect.create({
-            character_element,
-            character_rarity,
-            character_pwr,
-            skill_id: skill_id[0],
-            skill_type: 'basic_skill',
-            affected_stat: 'hp',
-            target: 'enemy',
-            duration: 1,
-        });
+        const effect = await Effect.create(basicSkill);
 
-        return new BasicSkill({
-            id: skill_id[0],
-            energy_cost: 1,
-            cooldown: 0,
-            effects: [effect],
-        });
+        basicSkill.effects = [effect];
+
+        return basicSkill;
     }
 }
 

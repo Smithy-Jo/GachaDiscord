@@ -2,6 +2,7 @@
     "rarity_rates": {
       "common": {
         "probability": 50,
+        "max_level": 20,
         "stats_range": {
           "hp": { "min": 50, "max": 100 },
           "pwr": { "min": 10, "max": 15 },
@@ -13,6 +14,7 @@
       },
       "rare": {
         "probability": 30,
+        "max_level": 40,
         "stats_range": {
           "hp": { "min": 100, "max": 130 },
           "pwr": { "min": 15, "max": 25 },
@@ -24,6 +26,7 @@
       },
       "epic": {
         "probability": 15,
+        "max_level": 60,
         "stats_range": {
           "hp": { "min": 130, "max": 170 },
           "pwr": { "min": 25, "max": 40 },
@@ -35,6 +38,7 @@
       },
       "legendary": {
         "probability": 5,
+        "max_level": 80,
         "stats_range": {
           "hp": { "min": 170, "max": 250 },
           "pwr": { "min": 40, "max": 60 },

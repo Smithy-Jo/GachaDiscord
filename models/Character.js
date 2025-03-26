@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const configDrop = require('../config/drop.json');
+const drop_config = require('../config/drop.json');
 const { cores, prefixes, suffixes, titlesByRarity } = require('../config/characterNames.json');
 const BasicSkill = require('./BasicSkill');
 const SpecialSkill = require('./SpecialSkill');
@@ -12,13 +12,12 @@ class Character {
 
     constructor(parameters) {
         this.id = parameters.id ?? null;
-        this.user = parameters.user ?? null;
         this.rarity = parameters.rarity ?? Character.generateRarity(parameters.user);
         this.name = parameters.name ?? Character.generateCharacterName(this.rarity);
-        this.level = parameters.level || 1;
-        this.xp = parameters.xp || 0;
+        this.level = parameters.level ?? 1;
+        this.xp = parameters.xp ?? 0;
 
-        const stats_range = configDrop.rarity_rates[this.rarity].stats_range;
+        const stats_range = drop_config.rarity_rates[this.rarity].stats_range;
         this.hp = parameters.hp ?? Character.generateRandomStat(stats_range.hp.min, stats_range.hp.max);
         this.pwr = parameters.pwr ?? Character.generateRandomStat(stats_range.pwr.min, stats_range.pwr.max);
         this.def = parameters.def ?? Character.generateRandomStat(stats_range.def.min, stats_range.def.max);
@@ -28,20 +27,19 @@ class Character {
         this.element = parameters.element ?? ['fire', 'water', 'earth'][Math.floor(Math.random() * 3)];
 
         this.xpToNextLevel = parameters.xpToNextLevel ?? this.getXpRequirement();
-        this.maxLevel = parameters.maxLevel ?? this.getMaxLevel();
+        this.maxLevel = parameters.maxLevel ?? drop_config.rarity_rates[this.rarity].max_level;
 
-        this.basicSkill = parameters.basicSkill || null;
-        this.specialSkill = parameters.specialSkill || null;
-        this.ultimateSkill = parameters.ultimateSkill || null;
+        this.user = parameters.user ?? null;
+        this.basicSkill = parameters.basicSkill ?? null;
+        this.specialSkill = parameters.specialSkill ?? null;
+        this.ultimateSkill = parameters.ultimateSkill ?? null;
     }
 
-    static async invoc(user) {
+    static async create(user) {
 
-        const character = new Character({
-            user,
-        });
+        const character = new Character({ user });
 
-        character.basicSkill = await BasicSkill.create(character.element, character.pwr, character.rarity);
+        character.basicSkill = await BasicSkill.create(character);
 
         character.id = await Character.knex('characters').insert({
             user_id: character.user.id,
@@ -64,43 +62,91 @@ class Character {
         return character;
     }
 
-    getMaxLevel() {
-        const rarityLevels = {
-            "common": 20,
-            "rare": 40,
-            "epic": 60,
-            "legendary": 80
-        };
-        return rarityLevels[this.rarity];
+    
+    async save() {
+        await Character.knex('characters').update({
+            level: this.level,
+            xp: this.xp,
+            hp: this.hp,
+            pwr: this.pwr,
+            def: this.def,
+            speed: this.speed,
+            dodge: this.dodge,
+            crit: this.crit,
+            updated_at: new Date()
+        }).where('id', this.id);
     }
-    getXpRequirement() {
-        return Math.floor(100 * Math.pow(1.2, this.level - 1));
-    }
-    // Ajouter de l'XP et gérer la montée de niveau
-    gainXp(amount) {
+
+    async gainXp(amount) {
         if (this.level >= this.maxLevel) return;
 
         this.xp += amount;
-        while (this.xp >= this.xpToNextLevel && this.level < this.maxLevel) {
-            this.levelUp();
+        while (this.xp >= this.xpToNextLevel) {
+            await this.levelUp();
         }
     }
-    levelUp() {
+
+    getXpRequirement() {
+        return Math.floor(100 * Math.pow(1.2, this.level - 1));
+    }
+    async levelUp() {
         this.xp -= this.xpToNextLevel;
         this.level++;
         this.xpToNextLevel = this.getXpRequirement();
-        this.unlockSkills();
-        console.log(`${this.name} passe au niveau ${this.level} !`);
+
+        this.hp = Math.floor(this.hp * 1.1);
+        this.pwr = Math.floor(this.pwr * 1.1);
+        this.def = Math.floor(this.def * 1.1);
+        this.speed = Math.floor(this.speed * 1.1);
+        this.dodge = this.dodge + 0.05;
+        this.crit = this.crit + 0.05;
+
+        if (this.level % 10 === 0)
+            await upgradeSkills();
+
+        await this.save();
+    }
+    async upgradeSkills() {
+        switch (this.level) {
+            case 10:
+                this.basicSkill.levelup(); // basicSkill.level = 2
+                break;
+            case 20:
+                this.specialSkill = await SpecialSkill.create(this);
+                break;
+            case 30:
+                this.specialSkill.levelup(); // specialSkill.level = 2
+                break;
+            case 40:
+                this.ultimateSkill = await UltimateSkill.create(this);
+                break;
+            case 50:
+                this.basicSkill.levelup(); // basicSkill.level = 3
+                break;
+            case 60:
+                this.specialSkill.levelup(); // specialSkill.level = 3
+                break;
+            case 70:
+                this.ultimateSkill.levelup(); // ultimateSkill.level = 2
+                break;
+            case 80:
+                this.ultimateSkill.levelup(); // ultimateSkill.level = 3
+                break;
+        }
+
+        this.basicSkill.upgrade();
+        if (this.specialSkill) this.specialSkill.upgrade();
+        if (this.ultimateSkill) this.ultimateSkill.upgrade();
     }
 
     static generateRarity(user) {
-        const pity_system = configDrop.pity_system;
+        const pity_system = drop_config.pity_system;
         if (user.legendary_pity >= pity_system.legendary_guarantee) return 'legendary';
         if (user.epic_pity >= pity_system.epic_guarantee) return 'epic';
 
         const roll = Math.random() * 100;
         let cumulativeChance = 0;
-        for (const [rarity, data] of Object.entries(configDrop.rarity_rates)) {
+        for (const [rarity, data] of Object.entries(drop_config.rarity_rates)) {
             cumulativeChance += data.probability;
             if (roll <= cumulativeChance) return rarity;
         }
@@ -182,6 +228,7 @@ class Character {
         };
         return colors[this.rarity] || 0xFFFFFF; // Blanc par défaut
     }
+
 }
 
 module.exports = Character;
