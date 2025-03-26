@@ -1,7 +1,5 @@
 const namesConfig = require('../config/effectNames.json');
-const BasicSkill = require('./BasicSkill');
-const SpecialSkill = require('./SpecialSkill');
-const UltimateSkill = require('./UltimateSkill');
+
 
 function getRandomElement(array) {
     return array[Math.floor(Math.random() * array.length)];
@@ -11,6 +9,9 @@ class Effect {
     static knex = null;
 
     constructor(parameters) {
+        // Variables propres à l'objet
+        this.skill = parameters.skill ?? null;
+
         // Variables de la base de données
         this.id = parameters.id ?? null;
         this.element = parameters.element ?? this.generateElement();
@@ -21,8 +22,6 @@ class Effect {
         this.name = parameters.name ?? this.generateName();
         this.description = parameters.description ?? this.getDescription();
 
-        // Variables propres à l'objet
-        this.skill = parameters.skill ?? null;
     }
 
     static async create(skill) {
@@ -54,32 +53,40 @@ class Effect {
     }
 
     generateTarget() {
-        if (this.skill.type instanceof BasicSkill) return 'enemy';
+        const BasicSkill = require('./BasicSkill');
+        if (this.skill instanceof BasicSkill) return 'enemy';
         else return getRandomElement(['self', 'enemy'])
     }
 
     generateAffectedStat() {
-        if (this.skill.type instanceof BasicSkill) return 'hp';
+        const BasicSkill = require('./BasicSkill');
+        if (this.skill instanceof BasicSkill) return 'hp';
         else return getRandomElement(['hp', 'pwr', 'def', 'speed', 'dodge', 'crit']);
     }
 
     generateDuration() {
-        if (this.skill.type instanceof BasicSkill) return 1;
-        if (this.skill.type instanceof SpecialSkill) return getRandomElement([2, 3]);
-        if (this.skill.type instanceof UltimateSkill) return getRandomElement([3, 4]);
+        const BasicSkill = require('./BasicSkill');
+        const SpecialSkill = require('./SpecialSkill');
+        const UltimateSkill = require('./UltimateSkill');
+        if (this.skill instanceof BasicSkill) return 1;
+        if (this.skill instanceof SpecialSkill) return getRandomElement([2, 3]);
+        if (this.skill instanceof UltimateSkill) return getRandomElement([3, 4]);
     }
 
     generateValue() {
+        const BasicSkill = require('./BasicSkill');
+        const SpecialSkill = require('./SpecialSkill');
+        const UltimateSkill = require('./UltimateSkill');
         const randomFactor = (Math.random() * 0.2) + 0.9; // 90% - 110%
         const rarityMultipliers = { common: 0.9, rare: 1.0, epic: 1.0, legendary: 1.2 };
         const multiplier = rarityMultipliers[this.skill.character.rarity];
-        if (this.skill.type instanceof BasicSkill) {
+        if (this.skill instanceof BasicSkill) {
             const pwrFactor = this.skill.character.pwr * multiplier * randomFactor;
             return this.value ?? Math.round(pwrFactor);
-        } else if (this.skill.type instanceof SpecialSkill) {
+        } else if (this.skill instanceof SpecialSkill) {
             const pwrFactor = this.skill.character.pwr * multiplier * ((Math.random() * 0.3) + 1.2); // 120% - 150%
             return this.value ?? Math.round(pwrFactor);
-        } else if (this.skill.type instanceof UltimateSkill) {
+        } else if (this.skill instanceof UltimateSkill) {
             const pwrFactor = this.skill.character.pwr * multiplier * ((Math.random() * 0.4) + 1.8); // 180% - 220%
             return this.value ?? Math.round(pwrFactor);
         }
