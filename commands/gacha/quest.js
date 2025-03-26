@@ -1,14 +1,28 @@
-const { SlashCommandBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const User = require('../../models/User')
 
 module.exports = {
     category: 'gacha',
     data: new SlashCommandBuilder()
         .setName('quest')
-        .setDescription('Affiche les quêtes disponibles.'),
+        .setDescription('Affiche les quêtes disponibles.')
+        .addNumberOption(option =>
+            option.setName('identifiant')
+                .setDescription('Identifiant du personnage.')
+                .setRequired(true)
+				.setAutocomplete(true)),
+	async autocomplete(interaction) {
+        const user = await User.getUserById(interaction.user.id);
+        const characters = await user.getCharacters();
+		const focusedValue = interaction.options.getFocused();
+
+		const choices = characters.map(character => character.id);
+		const filtered = choices.filter(choice => choice.toString().includes(focusedValue.toString()));
+		await interaction.respond(
+			filtered.map(choice => ({ name: choice, value: choice })),
+		);
+    },
     async execute(interaction) {
-        interaction.reply('En cours de developpement...');
-        return;
         // Créer un tableau de quêtes
         const quests = [
             { name: 'Chasser des rats', description: 'Tuez 5 rats dans la forêt.', level: 1 },
@@ -18,21 +32,19 @@ module.exports = {
 
         // Pour chaque quête, envoyer un message avec un bouton "Select"
         for (const quest of quests) {
-            const row = new MessageActionRow()
+            const row = new ActionRowBuilder()
                 .addComponents(
-                    new MessageButton()
-                        .setCustomId(`select_quest_${quest.level}`)
+                    new ButtonBuilder()
+                        .setCustomId(`quest_${quest.level}`)
                         .setLabel('Select')
-                        .setStyle('PRIMARY')
+                        .setStyle(ButtonStyle.Primary)
                 );
 
-            await interaction.reply({
+            await interaction.user.send({
                 content: `**Quête : ${quest.name}**\nDescription : ${quest.description}\nNiveau : ${quest.level}`,
                 components: [row],
             });
 
-            // Optionnel : tu peux ajouter un délai entre chaque message pour éviter l'envoi trop rapide
-            await new Promise(resolve => setTimeout(resolve, 500)); // Attendre 500ms entre les messages
         }
     }
 }

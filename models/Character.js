@@ -170,8 +170,8 @@ class Character {
 
     generateEmbed() {
         const embed = new EmbedBuilder()
-            .setTitle(`🎭 Nouveau personnage obtenu !`)
-            .setDescription(`**Nom : ${this.name}\nRareté : ${this.formatRarity()}**`)
+            .setTitle(`**${this.name}**    |    \`Id : ${this.id}\``)
+            .setDescription(`Rareté : ${this.formatRarity()}`)
             .setColor(this.getRarityColor())
             .addFields(
                 { name: "❤️ PV", value: `${this.hp}`, inline: true },
@@ -180,7 +180,7 @@ class Character {
                 { name: "💨 Vitesse", value: `${this.speed}`, inline: true },
                 { name: "🎯 Esquive", value: `${(this.dodge * 100).toFixed(1)}%`, inline: true },
                 { name: "💥 Critique", value: `${(this.crit * 10).toFixed(1)}%`, inline: true }
-            );
+            ).setFooter({text:`Niveau : ${this.level} / ${this.maxLevel}    |    XP : ${this.xp} / ${this.xpToNextLevel}`});
 
         // Ajout des compétences si elles existent
         if (this.basicSkill) {
@@ -204,7 +204,6 @@ class Character {
             );
         }
 
-        embed.setTimestamp();
         return embed;
     }
 

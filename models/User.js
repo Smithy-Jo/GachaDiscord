@@ -1,4 +1,5 @@
 const { knex } = require("./Effect");
+const Character = require("./Character");
 
 class User {
     static knex = null;
@@ -22,13 +23,6 @@ class User {
         const user = await User.knex('users').where('id', user_id).first();
         if (!user) return null;
         return new User(user);
-    }
-
-    async getCharacters() {
-        const characters = await User.knex('characters').where('user_id', this.id);
-        for (const character of characters) {
-
-        }
     }
 
     static async create(parameters) {
@@ -79,6 +73,11 @@ class User {
             this.epic_pity += 1;
             this.legendary_pity += 1;
         }
+    }
+
+    async getCharacters() {
+        const characters = await User.knex('characters').where('user_id', this.id).select();
+        return characters.map(character => new Character(character));
     }
 }
 

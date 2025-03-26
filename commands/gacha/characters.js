@@ -13,12 +13,13 @@ module.exports = {
             return;
         }
 
-        const characters = await user.getCharacters();
+        let characters = await user.getCharacters();
         if (characters.length === 0) {
-            await interaction.reply('Vous n\'avez pas de personnages. Faite `/invoc` pour en obtenir un.');
+            await interaction.reply('Vous n\'avez pas de personnages. Faite `/summon` pour en obtenir un.');
             return;
         }
 
-        const characterList = characters.map(character => `**${character.name}** - Niveau ${character.level}`).join('\n');
+        await interaction.reply(`${characters.length} personnages envoyés en message privé.`);
+        await interaction.user.send({embeds: characters.map(character => character.generateEmbed())});
     }
 }
