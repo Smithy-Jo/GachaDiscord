@@ -1,3 +1,4 @@
+
 class Skill {
     static knex = null;
 
@@ -11,7 +12,7 @@ class Skill {
         // Variables propres à l'objet
         this.type = parameters.type ?? null;
         this.character = parameters.character ?? null;
-        this.effects = parameters.effects ?? null;
+        this.effects = parameters.effects ?? [];
     }
 
     async levelup() {
@@ -20,18 +21,18 @@ class Skill {
     }
 
     async upgrade() {
-        await Promise.all(this.effects.map(effect => effect.upgrade()));
-        await this.save();
+        this.effects.forEach(effect => effect.upgrade());
     }
 
     async save() {
+        await Promise.all(this.effects.map(effect => effect.save()));
         await Skill.knex('skills').update({
             level: this.level,
             cooldown: this.cooldown,
             energy_cost: this.energy_cost,
             updated_at: new Date()
         }).where('id', this.id);
-    }
+    } 
 
 }
 

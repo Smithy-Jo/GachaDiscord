@@ -24,8 +24,8 @@ class Effect {
 
     }
 
-    static async create(skill) {
-        const effect = new Effect({ skill });
+    static async create(parameters) {
+        const effect = new Effect({ skill: parameters.skill });
 
         const effect_id = await Effect.knex('effects').insert({
             name: effect.name,
@@ -122,7 +122,7 @@ class Effect {
   
 
     async save() {
-        return Effect.knex('effects').update({
+        await Effect.knex('effects').update({
             name: this.name,
             description: this.description,
             element: this.element,
@@ -142,6 +142,17 @@ class Effect {
 
     levelup() {
         this.name = this.name.split(' ').slice(0, -1).join(' ') + ' ' + getRandomElement(namesConfig.suffixes[this.skill.level - 1]);
+    }
+
+    static async loadInSkill(skill){
+        const effectsData = await Effect.knex('effects').where('skill_id', skill.id);
+        if (!effectsData) return null;
+
+        for (const effectData of effectsData) {
+            const effect = new Effect(effectData);
+            effect.skill = skill;
+            skill.effects.push(effect);
+        }
     }
 
 }

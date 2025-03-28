@@ -14,6 +14,9 @@ module.exports = {
         if (!user) {
             return interaction.reply("Vous n'avez pas de compte. Faites `/register` d'abord !");
         }
+        if (user.balance < 100) {
+            return interaction.reply("Vous n'avez pas assez de pièces pour invoquer !");
+        }
 
         // Creer un message avec btn pour invoquer x1 ou x10
         const row = new ActionRowBuilder()
@@ -40,10 +43,10 @@ module.exports = {
         collector.on('collect', async i => {
             let characters = [];
             if ((i.customId === 'btn_summon_1' && user.balance < 100) || (i.customId === 'btn_summon_10' && user.balance < 1000)) {
-                await i.update({ content: 'Vous n\'avez pas assez de pièces pour invoquer !', components: [] });
+                return i.update({ content: 'Vous n\'avez pas assez de pièces pour invoquer !', components: [] });
 
             } else if (i.customId === 'btn_summon_1') {
-                const character = await Character.create(user);
+                const character = await Character.create({ user });
                 user.balance -= 100;
                 user.updatePitySystem(character.rarity);
                 await user.save();
@@ -51,7 +54,7 @@ module.exports = {
 
             } else if (i.customId === 'btn_summon_10') {
                 for (let i = 0; i < 10; i++) {
-                    const character = await Character.create(user);
+                    const character = await Character.create({ user });
                     characters.push(character);
                     user.updatePitySystem(character.rarity);
                 }

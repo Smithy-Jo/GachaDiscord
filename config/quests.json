@@ -1,0 +1,188 @@
+{
+    "templates": [
+        "Chasser un(e) {enemy}",
+        "Éliminer {enemy} qui terrorisent {location}",
+        "Traquer et tuer le {enemy} géant dans {location}",
+        "Récupérer {item} dans {location}",
+        "Trouver et rapporter {item} à {npc}",
+        "Explorer {location} pour récupérer {item} perdu",
+        "Protéger {npc} contre {enemy}",
+        "Défendre {location} contre une attaque de {enemy}",
+        "Escorter {npc} jusqu'à {location} en évitant {enemy}",
+        "Explorer {location} et en cartographier les environs",
+        "Trouver l'entrée secrète de {location}",
+        "Chercher des traces d’une ancienne civilisation dans {location}",
+        "Tuer le {enemy} dans {location}",
+        "Empêcher {npc} d’accomplir un rituel interdit",
+        "Trouver et utiliser {item} pour arrêter {enemy}"
+    ],
+    "enemies": [
+        {
+            "name": "rat",
+            "level": 1,
+            "rarity": "common"
+        },
+        {
+            "name": "loup",
+            "level": 2,
+            "rarity": "common"
+        },
+        {
+            "name": "gobelin",
+            "level": 3,
+            "rarity": "common"
+        },
+        {
+            "name": "bandit",
+            "level": 5,
+            "rarity": "common"
+        },
+        {
+            "name": "orc",
+            "level": 7,
+            "rarity": "rare"
+        },
+        {
+            "name": "squelette",
+            "level": 8,
+            "rarity": "common"
+        },
+        {
+            "name": "zombie",
+            "level": 10,
+            "rarity": "common"
+        },
+        {
+            "name": "serpent venimeux",
+            "level": 12,
+            "rarity": "rare"
+        },
+        {
+            "name": "troll",
+            "level": 15,
+            "rarity": "rare"
+        },
+        {
+            "name": "harpie",
+            "level": 18,
+            "rarity": "rare"
+        },
+        {
+            "name": "élémentaire de terre",
+            "level": 20,
+            "rarity": "epic"
+        },
+        {
+            "name": "spectre",
+            "level": 22,
+            "rarity": "epic"
+        },
+        {
+            "name": "golem de pierre",
+            "level": 25,
+            "rarity": "epic"
+        },
+        {
+            "name": "vampire",
+            "level": 28,
+            "rarity": "epic"
+        },
+        {
+            "name": "chevalier noir",
+            "level": 30,
+            "rarity": "legendary"
+        },
+        {
+            "name": "wyverne",
+            "level": 35,
+            "rarity": "epic"
+        },
+        {
+            "name": "garde royal corrompu",
+            "level": 40,
+            "rarity": "rare"
+        },
+        {
+            "name": "seigneur orc",
+            "level": 45,
+            "rarity": "legendary"
+        },
+        {
+            "name": "chimère",
+            "level": 50,
+            "rarity": "legendary"
+        },
+        {
+            "name": "démon mineur",
+            "level": 55,
+            "rarity": "epic"
+        },
+        {
+            "name": "élémentaire de feu",
+            "level": 60,
+            "rarity": "epic"
+        },
+        {
+            "name": "élémentaire de glace",
+            "level": 65,
+            "rarity": "epic"
+        },
+        {
+            "name": "hydre",
+            "level": 70,
+            "rarity": "legendary"
+        },
+        {
+            "name": "dragon ancien",
+            "level": 75,
+            "rarity": "legendary"
+        },
+        {
+            "name": "seigneur vampire",
+            "level": 80,
+            "rarity": "legendary"
+        },
+        {
+            "name": "lich",
+            "level": 85,
+            "rarity": "legendary"
+        },
+        {
+            "name": "archidémon",
+            "level": 90,
+            "rarity": "legendary"
+        },
+        {
+            "name": "titan",
+            "level": 95,
+            "rarity": "legendary"
+        },
+        {
+            "name": "avatar du chaos",
+            "level": 100,
+            "rarity": "legendary"
+        }
+    ],
+    "locations": [
+        "la forêt",
+        "les montagnes",
+        "le marais",
+        "les ruines anciennes",
+        "la ville",
+        "le désert"
+    ],
+    "items": [
+        "une amulette maudite",
+        "une épée enchantée",
+        "des herbes médicinales",
+        "un parchemin ancien",
+        "des cristaux magiques"
+    ],
+    "npcs": [
+        "un marchand",
+        "un noble",
+        "un magicien",
+        "un villageois",
+        "le chef de la garde"
+    ]
+}

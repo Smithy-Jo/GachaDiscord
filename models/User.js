@@ -19,16 +19,10 @@ class User {
         this.characters = parameters.characters ?? [];
     }
 
-    static async getUserById(user_id) {
-        const user = await User.knex('users').where('id', user_id).first();
-        if (!user) return null;
-        return new User(user);
-    }
-
     static async create(parameters) {
         const user = new User(parameters);
 
-        await User.knex('users').insert({
+        const user_id = await User.knex('users').insert({
             id: user.id,
             username: user.username,
             email: user.email,
@@ -40,8 +34,23 @@ class User {
             created_at: new Date(),
             updated_at: new Date()
         });
+        user.id = user_id[0];
 
         return user;
+    }  
+
+    async updatePitySystem(obtainedRarity) {
+
+        // Mise à jour du système de pitié
+        if (obtainedRarity === 'legendary') {
+            this.epic_pity = 0;
+            this.legendary_pity = 0;
+        } else if (obtainedRarity === 'epic') {
+            this.epic_pity = 0;
+        } else {
+            this.epic_pity += 1;
+            this.legendary_pity += 1;
+        }
     }
 
     static async deleteUser(user_id) {
@@ -60,25 +69,26 @@ class User {
             updated_at: new Date()
         });
     }
-
-    async updatePitySystem(obtainedRarity) {
-
-        // Mise à jour du système de pitié
-        if (obtainedRarity === 'legendary') {
-            this.epic_pity = 0;
-            this.legendary_pity = 0;
-        } else if (obtainedRarity === 'epic') {
-            this.epic_pity = 0;
-        } else {
-            this.epic_pity += 1;
-            this.legendary_pity += 1;
-        }
+    static async getUserById(user_id) {
+        const user = await User.knex('users').where('id', user_id).first();
+        if (!user) return null;
+        return new User(user);
     }
 
     async getCharacters() {
         const characters = await User.knex('characters').where('user_id', this.id).select();
         return characters.map(character => new Character(character));
     }
+
+    static async getUserLoadedById(user_id) {
+        const userData = await User.knex('users').where('id', user_id).first();
+        if (!userData) return null;
+
+        const user = new User(userData);
+        await Character.loadInUser(user);
+        return user;
+    }
+
 }
 
 module.exports = User;

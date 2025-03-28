@@ -1,5 +1,5 @@
 require('dotenv').config();
-require('./models/index.js');
+const { initializeDatabase } = require('./models/index.js');
 
 const { Client, GatewayIntentBits } = require('discord.js');
 
@@ -19,10 +19,14 @@ const client = new Client({
 
 // Load all commands
 (async () => {
+    // Initialize the database connection
+    await initializeDatabase();
 
+    // Chargement des commandes et des événements
     await commandLoader.loadCommands(client);
     await eventLoader.loadEvents(client);
 
+    // Connection au client Discord
     await client.login(process.env.DISCORD_TOKEN);
 
 })();

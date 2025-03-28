@@ -8,21 +8,31 @@ class BasicSkill extends Skill {
         this.cooldown = parameters.cooldown ?? 0;
     }
 
-    static async create(character) {
+    static async create(parameters) {
 
-        const basicSkill = new BasicSkill({ character });
+        const skill = new BasicSkill({ character: parameters.character });
 
-        basicSkill.id = await this.knex('skills').insert({
-            energy_cost: basicSkill.energy_cost,
-            cooldown: basicSkill.cooldown,
-            level: basicSkill.level 
+        const skill_id = await Skill.knex('skills').insert({
+            energy_cost: skill.energy_cost,
+            cooldown: skill.cooldown,
+            level: skill.level 
         });
+        skill.id = skill_id[0];
 
-        const effect = await Effect.create(basicSkill);
+        const effect = await Effect.create({ skill });
 
-        basicSkill.effects = [effect];
+        skill.effects = [effect];
 
-        return basicSkill;
+        return skill;
+    }
+    
+    static async loadInCharacterById(parameters) {
+        const skillData = await Skill.knex('skills').where('id', parameters.skillId).first();
+        if (!skillData) return null;
+        const skill = new BasicSkill(skillData);
+        skill.character = parameters.character;
+        skill.character.basicSkill = skill;
+        await Effect.loadInSkill(skill);
     }
 }
 

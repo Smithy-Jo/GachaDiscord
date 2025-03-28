@@ -6,7 +6,7 @@ const SpecialSkill = require('./SpecialSkill');
 const UltimateSkill = require('./UltimateSkill');
 
 
-class Character {
+class Character { // Wip: Hero extends Character
 
     static knex = null;
 
@@ -16,6 +16,8 @@ class Character {
         this.name = parameters.name ?? Character.generateCharacterName(this.rarity);
         this.level = parameters.level ?? 1;
         this.xp = parameters.xp ?? 0;
+        this.xpToNextLevel = parameters.xpToNextLevel ?? this.getXpRequirement();
+        this.maxLevel = parameters.maxLevel ?? drop_config.rarity_rates[this.rarity].max_level;
 
         const stats_range = drop_config.rarity_rates[this.rarity].stats_range;
         this.hp = parameters.hp ?? Character.generateRandomStat(stats_range.hp.min, stats_range.hp.max);
@@ -26,23 +28,20 @@ class Character {
         this.crit = parameters.crit ?? Character.generateRandomStat(stats_range.crit.min, stats_range.crit.max) / 100;
         this.element = parameters.element ?? ['fire', 'water', 'earth'][Math.floor(Math.random() * 3)];
 
-        this.xpToNextLevel = parameters.xpToNextLevel ?? this.getXpRequirement();
-        this.maxLevel = parameters.maxLevel ?? drop_config.rarity_rates[this.rarity].max_level;
-
         this.user = parameters.user ?? null;
         this.basicSkill = parameters.basicSkill ?? null;
         this.specialSkill = parameters.specialSkill ?? null;
         this.ultimateSkill = parameters.ultimateSkill ?? null;
     }
 
-    static async create(user) {
+    static async create(parameters) {
 
-        const character = new Character({ user });
+        const character = new Character(parameters);
 
-        character.basicSkill = await BasicSkill.create(character);
+        character.basicSkill = await BasicSkill.create({ character });
 
-        character.id = await Character.knex('characters').insert({
-            user_id: character.user.id,
+        const character_id = await Character.knex('characters').insert({
+            user_id: character.user ? character.user.id : null,
             rarity: character.rarity,
             name: character.name,
             level: character.level,
@@ -58,12 +57,26 @@ class Character {
             special_skill_id: null,
             ultimate_skill_id: null
         });
+        character.id = character_id[0];
+
+        if (character.level > 1) {
+            const level = character.level;
+            character.level = 1;
+            for (let i = 1; i < level; i++) {
+                await character.levelUp(false);
+            }
+            await character.save();
+        }
 
         return character;
     }
 
-    
+
     async save() {
+        await this.basicSkill.save();
+        if (this.specialSkill) await this.specialSkill.save();
+        if (this.ultimateSkill) await this.ultimateSkill.save();
+
         await Character.knex('characters').update({
             level: this.level,
             xp: this.xp,
@@ -73,6 +86,10 @@ class Character {
             speed: this.speed,
             dodge: this.dodge,
             crit: this.crit,
+            element: this.element,
+            basic_skill_id: this.basicSkill.id,
+            special_skill_id: this.specialSkill ? this.specialSkill.id : null,
+            ultimate_skill_id: this.ultimateSkill ? this.ultimateSkill.id : null,
             updated_at: new Date()
         }).where('id', this.id);
     }
@@ -89,10 +106,12 @@ class Character {
     getXpRequirement() {
         return Math.floor(100 * Math.pow(1.2, this.level - 1));
     }
-    async levelUp() {
-        this.xp -= this.xpToNextLevel;
+    async levelUp(updateXP = true) {
+        if (updateXP) {
+            this.xp -= this.xpToNextLevel;
+            this.xpToNextLevel = this.getXpRequirement();
+        }
         this.level++;
-        this.xpToNextLevel = this.getXpRequirement();
 
         this.hp = Math.floor(this.hp * 1.1);
         this.pwr = Math.floor(this.pwr * 1.1);
@@ -102,9 +121,7 @@ class Character {
         this.crit = this.crit + 0.05;
 
         if (this.level % 10 === 0)
-            await upgradeSkills();
-
-        await this.save();
+            await this.upgradeSkills();
     }
     async upgradeSkills() {
         switch (this.level) {
@@ -112,13 +129,13 @@ class Character {
                 this.basicSkill.levelup(); // basicSkill.level = 2
                 break;
             case 20:
-                this.specialSkill = await SpecialSkill.create(this);
+                this.specialSkill = await SpecialSkill.create({ character: this });
                 break;
             case 30:
                 this.specialSkill.levelup(); // specialSkill.level = 2
                 break;
             case 40:
-                this.ultimateSkill = await UltimateSkill.create(this);
+                this.ultimateSkill = await UltimateSkill.create({ character: this });
                 break;
             case 50:
                 this.basicSkill.levelup(); // basicSkill.level = 3
@@ -140,9 +157,11 @@ class Character {
     }
 
     static generateRarity(user) {
-        const pity_system = drop_config.pity_system;
-        if (user.legendary_pity >= pity_system.legendary_guarantee) return 'legendary';
-        if (user.epic_pity >= pity_system.epic_guarantee) return 'epic';
+        if (user) {
+            const pity_system = drop_config.pity_system;
+            if (user.legendary_pity >= pity_system.legendary_guarantee) return 'legendary';
+            if (user.epic_pity >= pity_system.epic_guarantee) return 'epic';
+        }
 
         const roll = Math.random() * 100;
         let cumulativeChance = 0;
@@ -164,7 +183,7 @@ class Character {
         return `${name} ${title}`;
     }
 
-    static generateRandomStat(min, max) {
+    static generateRandomStat(min, max) {  // Wip: Work in progress
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
@@ -180,7 +199,7 @@ class Character {
                 { name: "💨 Vitesse", value: `${this.speed}`, inline: true },
                 { name: "🎯 Esquive", value: `${(this.dodge * 100).toFixed(1)}%`, inline: true },
                 { name: "💥 Critique", value: `${(this.crit * 10).toFixed(1)}%`, inline: true }
-            ).setFooter({text:`Niveau : ${this.level} / ${this.maxLevel}    |    XP : ${this.xp} / ${this.xpToNextLevel}`});
+            ).setFooter({ text: `Niveau : ${this.level}    |    XP : ${this.xp} / ${this.xpToNextLevel}` });
 
         // Ajout des compétences si elles existent
         if (this.basicSkill) {
@@ -207,7 +226,6 @@ class Character {
         return embed;
     }
 
-
     formatRarity() {
         const emojis = {
             common: "⚪ Commun",
@@ -228,6 +246,29 @@ class Character {
         return colors[this.rarity] || 0xFFFFFF; // Blanc par défaut
     }
 
+    static async loadInUser(user) {
+        const charactersData = await Character.knex('characters').where('user_id', user.id);
+        if (!charactersData) return null;
+
+        for (const characterData of charactersData) {
+            const character = new Character(characterData);
+            character.user = user;
+            await BasicSkill.loadInCharacterById({ character, skillId: characterData.basic_skill_id });
+            await SpecialSkill.loadInCharacterById({ character, skillId: characterData.special_skill_id });
+            await UltimateSkill.loadInCharacterById({ character, skillId: characterData.ultimate_skill_id });
+            user.characters.push(character);
+        }
+    }
+    static async getCharacterLoadedById(characterId) {
+        const characterData = await Character.knex('characters').where('id', characterId).first();
+        if (!characterData) return null;
+
+        const character = new Character(characterData);
+        await BasicSkill.loadInCharacterById({ character, skillId: characterData.basic_skill_id });
+        await SpecialSkill.loadInCharacterById({ character, skillId: characterData.special_skill_id });
+        await UltimateSkill.loadInCharacterById({ character, skillId: characterData.ultimate_skill_id });
+        return character;
+    }
 }
 
 module.exports = Character;
