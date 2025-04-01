@@ -1,10 +1,23 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const User = require('../../models/User');
 const Character = require('../../models/Character');
+const PvECombat = require('../../controllers/PVECombat');
 const { templates, enemies, locations, items, npcs } = require('../../config/quests.json');
 
 function getRandomElement(array) {
     return array[Math.floor(Math.random() * array.length)];
+}
+
+function calculateXP(enemy) {
+    const baseXP = enemy.level * 10; // XP de base en fonction du niveau
+    const rarityMultipliers = {
+        common: 1,
+        rare: 1.5,
+        epic: 2,
+        legendary: 3
+    };
+    const multiplier = rarityMultipliers[enemy.rarity] || 1;
+    return Math.round(baseXP * multiplier);
 }
 
 module.exports = {
@@ -87,55 +100,20 @@ module.exports = {
             // Debut de la quête
             collector.on('collect', async i => {
                 collectors.forEach(collector => collector.stop());
-                messages.filter(m => m.id !== message.id).forEach(m => m.delete()); // Supprime les autres messages
-                let log = [`Vous avez lancé la quête :\n${description}`];
-                message.edit({ content: log.join('\n'), components: [] });
+                await Promise.all(messages.filter(m => m.id !== message.id).map(m => m.delete())); // Supprime les autres messages
 
                 const enemy = Character.create(enemyObj);
-                enemy.energy = 10;
-                character.energy = 10;
-                
-                log.push(`🔥 Combat entre ${character.name} et ${enemy.name} commence !`);
-                message.edit({ content: log.join('\n'), components: [] });
-                while (character.hp > 0 && enemy.hp > 0) {
-                  // Tour du joueur
-                  let playerDamage;
-                  if (player.energy >= player.skills[0].energy_cost) {
-                    // Utilisation de la compétence
-                    playerDamage = player.skills[0].damage;
-                    player.energy -= player.skills[0].energy_cost;
-                    log.push(`${player.name} utilise **${player.skills[0].name}** et inflige ${playerDamage} dégâts !`);
-                  } else {
-                    // Attaque normale
-                    playerDamage = player.attack;
-                    log.push(`${player.name} attaque et inflige ${playerDamage} dégâts.`);
-                  }
-                  enemy.hp -= Math.max(playerDamage - enemy.defense, 0);
-              
-                  if (enemy.hp <= 0) {
-                    log.push(`🎉 ${enemy.name} est vaincu !`);
-                    break;
-                  }
-              
-                  // Tour de l’ennemi
-                  let enemyDamage;
-                  if (enemy.energy >= enemy.skills[0].energy_cost) {
-                    enemyDamage = enemy.skills[0].damage;
-                    enemy.energy -= enemy.skills[0].energy_cost;
-                    log.push(`${enemy.name} utilise **${enemy.skills[0].name}** et inflige ${enemyDamage} dégâts !`);
-                  } else {
-                    enemyDamage = enemy.attack;
-                    log.push(`${enemy.name} attaque et inflige ${enemyDamage} dégâts.`);
-                  }
-                  player.hp -= Math.max(enemyDamage - player.defense, 0);
-              
-                  if (player.hp <= 0) {
-                    log.push(`💀 ${player.name} est vaincu...`);
-                    break;
-                  }
+                const pveCombat = new PvECombat(character, enemy, message);
+                await pveCombat.log(`-----------------------------------------------`);
+                await pveCombat.log(`Vous avez lancé la quête :\n${description}`);
+                const winner = await pveCombat.start();
+                if (winner === character) {
+                    const Exp = calculateXP(enemy);
+                    await pveCombat.log(`${character.name} à gagné ${Exp} XP !`);
+                    const level = character.gainXp(Exp)
+                    await pveCombat.log(`${character.name} est maintenant niveau ${level} !`);
+                    await character.save()
                 }
-              
-                await interaction.reply(log.join('\n'));
             });
         }
 

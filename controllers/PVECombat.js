@@ -9,8 +9,22 @@ class PvECombat {
 
     async log(action) {
         this.logs.push(action);
-        await this.message.edit({ content: this.logs.join('\n'), components: [] });
+        let content = this.logs.join('\n');
+    
+        try {
+            // Tente de mettre à jour le message existant
+            await this.message.edit({ content, components: [] });
+        } catch (error) {
+            if (error.rawError && error.rawError.errors && error.rawError.errors.content) {
+                this.logs = [action];
+                content = this.logs.join('\n');
+                this.message = await this.message.channel.send({ content, components: [] });
+            } else {
+                throw error;
+            }
+        }
     }
+    
 
     async start() {
         await this.log(`Début du combat entre ${this.player.name} et ${this.enemy.name} !`);
@@ -24,11 +38,16 @@ class PvECombat {
             // Mise à jour des effets actifs en fin de tour pour chaque personnage
             this.player.updateEffects();
             this.enemy.updateEffects();
+            this.player.decrementCooldowns();
+            this.enemy.decrementCooldowns();
+            
         }
         if (this.player.hp > 0) {
             await this.log(`${this.player.name} a gagné !`);
+            return this.player;
         } else {
             await this.log(`${this.enemy.name} a gagné !`);
+            return this.enemy;
         }
     }
 
@@ -60,25 +79,28 @@ class PvECombat {
                 } else {
                     defender.applyEffect({
                         ...effect,
-                        value: this.calculateEffectiveDamage(effect.value, attacker, defender),
+                        value: this.calculateEffectiveDamage(effect, defender),
                     });
-                    await this.log(`${attacker.name} utilise ${skill.name} et diminue le ${effect.affected_stat} de ${defender.name} de ${effect.value} pendant ${effect.duration} tours !`);
+                    await this.log(`${attacker.name} utilise ${effect.name} et diminue le ${effect.affected_stat} de ${defender.name} de ${effect.value} pendant ${effect.duration} tours !`);
                 }
+            }
+            if (skill.cooldown > 0) {
+                skill.cooldown_remaining = skill.cooldown;
             }
         }
 
 
     }
 
-    calculateEffectiveDamage(damage, attacker, defender) {
-        const element = attacker.element;
+    calculateEffectiveDamage(effect, defender) {
+        const element = effect.element;
 
         // Récupérer la résistance pour l'élément concerné sur le défenseur
         const resistances = defender.resistances || { fire: 0, water: 0, earth: 0 };
         const resistance = resistances[element] || 0;
 
         // Appliquer la réduction due à la résistance élémentaire
-        let damageAfterResistance = damage * (1 - resistance);
+        let damageAfterResistance = effect.value * (1 - resistance);
 
         // Appliquer la défense du défenseur (soustraction de la valeur de la défense)
         let finalDamage = Math.max(damageAfterResistance - defender.def, 0);
@@ -88,3 +110,5 @@ class PvECombat {
 
 
 }
+
+module.exports = PvECombat;

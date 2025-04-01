@@ -8,6 +8,7 @@ class Skill {
         this.level = parameters.level ?? 1;
         this.energy_cost = parameters.energy_cost ?? null;
         this.cooldown = parameters.cooldown ?? null;
+        this.cooldown_remaining = parameters.cooldown_remaining ?? 0;
 
         // Variables propres à l'objet
         this.character = parameters.character ?? null;
@@ -22,6 +23,11 @@ class Skill {
     async upgrade() {
         this.effects.forEach(effect => effect.upgrade());
     }
+
+    isAvailable() {
+        return this.cooldown_remaining === 0 && this.character.energy >= this.energy_cost;
+    }
+    
 
     async save() {
         if (this.id === null) {

@@ -28,6 +28,7 @@ class Character { // Wip: Hero extends Character
         this.crit = parameters.crit ?? Character.generateRandomStat(stats_range.crit.min, stats_range.crit.max) / 100;
         this.element = parameters.element ?? ['fire', 'water', 'earth'][Math.floor(Math.random() * 3)];
         this.resistances = parameters.resistances ?? Character.assignResistances(this.element);
+        this.energy = parameters.energy ?? 10;
 
         this.max_hp = this.hp;
         this.initialPwr = this.pwr;
@@ -35,7 +36,6 @@ class Character { // Wip: Hero extends Character
         this.initialSpeed = this.speed;
         this.initialDodge = this.dodge;
         this.initialCrit = this.crit;
-        this.energy = parameters.energy ?? 10;
 
         this.user = parameters.user ?? null;
         this.basicSkill = parameters.basicSkill ?? null;
@@ -104,16 +104,18 @@ class Character { // Wip: Hero extends Character
 
     }
 
-    async gainXp(amount) {
+    gainXp(amount) {
         if (this.level >= this.maxLevel) return;
-
+        const levelMemo = this.level;
         this.xp += amount;
         while (this.xp >= this.xpToNextLevel) {
-            await this.levelUp();
+            this.levelUp();
         }
+        return this.level;
     }
 
     getXpRequirement() {
+        // 20% par niveau de manière exponentielle.
         return Math.floor(100 * Math.pow(1.2, this.level - 1));
     }
     levelUp(updateXP = true) {
@@ -123,12 +125,12 @@ class Character { // Wip: Hero extends Character
         }
         this.level++;
 
-        this.hp = Math.floor(this.hp * 1.1);
-        this.pwr = Math.floor(this.pwr * 1.1);
-        this.def = Math.floor(this.def * 1.1);
-        this.speed = Math.floor(this.speed * 1.1);
-        this.dodge = this.dodge + 0.05;
-        this.crit = this.crit + 0.05;
+        this.max_hp = Math.floor(this.hp * 1.1);
+        this.initialPwr = Math.floor(this.pwr * 1.1);
+        this.initialDef = Math.floor(this.def * 1.1);
+        this.initialSpeed = Math.floor(this.speed * 1.1);
+        this.initialDodge = this.dodge + 0.05;
+        this.initialCrit = this.crit + 0.05;
 
         this.basicSkill.upgrade();
         if (this.specialSkill) this.specialSkill.upgrade();
@@ -331,6 +333,13 @@ class Character { // Wip: Hero extends Character
             }
         }
     }
+
+    decrementCooldowns() {
+        if (this.basicSkill.cooldown_remaining > 0) this.basicSkill.cooldown_remaining--;
+        if (this.specialSkill && this.specialSkill.cooldown_remaining > 0) this.specialSkill.cooldown_remaining--;
+        if (this.ultimateSkill && this.ultimateSkill.cooldown_remaining > 0) this.ultimateSkill.cooldown_remaining--;
+    }
+    
 }
 
 module.exports = Character;
