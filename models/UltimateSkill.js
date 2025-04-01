@@ -8,36 +8,28 @@ class UltimateSkill extends Skill {
         this.cooldown = parameters.cooldown ?? Math.floor(Math.random() * 4) + 4; // 4 - 7
     }
 
-    static async create(parameters) {
+    static create(parameters) {
+        const ultimateSkill = new UltimateSkill(parameters);
 
-        const skill = new UltimateSkill({ character: parameters.character });
-
-        const skill_id = await Skill.knex('skills').insert({
-            level: skill.level,
-            energy_cost: skill.energy_cost, // wip: faire uniquement avec skill
-            cooldown: skill.cooldown,
-        });
-        skill.id = skill_id[0];
-
-        // Wip : Voir si pas possible de le mettre dans la class Skill directement
         let numberOfEffects = 2;
-        if (skill.character.rarity === 'epic')
+        if (ultimateSkill.character.rarity === 'epic')
             numberOfEffects = Math.floor(Math.random() * 2) + 2; // 2 - 3
-        else if (skill.character.rarity === 'legendary')
+        else if (ultimateSkill.character.rarity === 'legendary')
             numberOfEffects = 3
 
         for (let i = 0; i < numberOfEffects; i++) {
-            const effect = await Effect.create({ skill });
-            skill.effects.push(effect);
+            ultimateSkill.effects.push(new Effect({ skill: ultimateSkill }));
         }
 
-        return skill;
+        return ultimateSkill;
     }
+
+
     static async loadInCharacterById(parameters) {
         const skillData = await Skill.knex('skills').where('id', parameters.skillId).first();
         if (!skillData) return null;
 
-        const skill = new UltimateSkill(skillData);
+        const skill = new UltimateSkill({...skillData, character: parameters.character});
         skill.character = parameters.character;
         skill.character.ultimateSkill = skill;
         await Effect.loadInSkill(skill);

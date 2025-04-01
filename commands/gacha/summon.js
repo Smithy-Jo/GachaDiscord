@@ -46,7 +46,8 @@ module.exports = {
                 return i.update({ content: 'Vous n\'avez pas assez de pièces pour invoquer !', components: [] });
 
             } else if (i.customId === 'btn_summon_1') {
-                const character = await Character.create({ user });
+                const character = Character.create({ user });
+                await character.save();
                 user.balance -= 100;
                 user.updatePitySystem(character.rarity);
                 await user.save();
@@ -54,7 +55,8 @@ module.exports = {
 
             } else if (i.customId === 'btn_summon_10') {
                 for (let i = 0; i < 10; i++) {
-                    const character = await Character.create({ user });
+                    const character = Character.create({ user });
+                    await character.save();
                     characters.push(character);
                     user.updatePitySystem(character.rarity);
                 }

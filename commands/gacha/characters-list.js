@@ -17,6 +17,11 @@ module.exports = {
         }
 
         await interaction.reply(`${user.characters.length} personnages envoyés en message privé.`);
-        await interaction.user.send({embeds: user.characters.map(character => character.generateEmbed())});
+        for (let i = 0; i < user.characters.length; i+=10) {
+            const characters = user.characters.slice(i, i + 10);
+            const embeds = characters.map(character => character.generateEmbed());
+            await interaction.user.send({ embeds });
+        }
+
     }
 }

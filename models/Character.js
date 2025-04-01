@@ -27,71 +27,81 @@ class Character { // Wip: Hero extends Character
         this.dodge = parameters.dodge ?? Character.generateRandomStat(stats_range.dodge.min, stats_range.dodge.max) / 100;
         this.crit = parameters.crit ?? Character.generateRandomStat(stats_range.crit.min, stats_range.crit.max) / 100;
         this.element = parameters.element ?? ['fire', 'water', 'earth'][Math.floor(Math.random() * 3)];
+        this.resistances = parameters.resistances ?? Character.assignResistances(this.element);
+
+        this.max_hp = this.hp;
+        this.initialPwr = this.pwr;
+        this.initialDef = this.def;
+        this.initialSpeed = this.speed;
+        this.initialDodge = this.dodge;
+        this.initialCrit = this.crit;
+        this.energy = parameters.energy ?? 10;
 
         this.user = parameters.user ?? null;
         this.basicSkill = parameters.basicSkill ?? null;
         this.specialSkill = parameters.specialSkill ?? null;
         this.ultimateSkill = parameters.ultimateSkill ?? null;
+
+        // Liste des effets actifs sur le personnage
+        this.activeEffects = [];
     }
 
-    static async create(parameters) {
-
+    static create(parameters) {
         const character = new Character(parameters);
+        character.basicSkill = BasicSkill.create({ character });
 
-        character.basicSkill = await BasicSkill.create({ character });
-
-        const character_id = await Character.knex('characters').insert({
-            user_id: character.user ? character.user.id : null,
-            rarity: character.rarity,
-            name: character.name,
-            level: character.level,
-            xp: character.xp,
-            hp: character.hp,
-            pwr: character.pwr,
-            def: character.def,
-            speed: character.speed,
-            dodge: character.dodge,
-            crit: character.crit,
-            element: character.element,
-            basic_skill_id: character.basicSkill.id,
-            special_skill_id: null,
-            ultimate_skill_id: null
-        });
-        character.id = character_id[0];
-
-        if (character.level > 1) {
-            const level = character.level;
+        if (parameters.level > 1) {
             character.level = 1;
-            for (let i = 1; i < level; i++) {
-                await character.levelUp(false);
+            for (let i = 1; i < parameters.level; i++) {
+                character.levelUp(false);
             }
-            await character.save();
         }
 
         return character;
     }
-
 
     async save() {
         await this.basicSkill.save();
         if (this.specialSkill) await this.specialSkill.save();
         if (this.ultimateSkill) await this.ultimateSkill.save();
 
-        await Character.knex('characters').update({
-            level: this.level,
-            xp: this.xp,
-            hp: this.hp,
-            pwr: this.pwr,
-            def: this.def,
-            speed: this.speed,
-            dodge: this.dodge,
-            crit: this.crit,
-            element: this.element,
-            basic_skill_id: this.basicSkill.id,
-            special_skill_id: this.specialSkill ? this.specialSkill.id : null,
-            ultimate_skill_id: this.ultimateSkill ? this.ultimateSkill.id : null,
-            updated_at: new Date()
-        }).where('id', this.id);
+        if (this.id === null) {
+            const character_id = await Character.knex('characters').insert({
+                user_id: this.user.id,
+                rarity: this.rarity,
+                name: this.name,
+                level: this.level,
+                xp: this.xp,
+                hp: this.max_hp,
+                pwr: this.initialPwr,
+                def: this.initialDef,
+                speed: this.initialSpeed,
+                dodge: this.initialDodge,
+                crit: this.initialCrit,
+                element: this.element,
+                basic_skill_id: this.basicSkill.id,
+                special_skill_id: null,
+                ultimate_skill_id: null
+            });
+            this.id = character_id[0];
+        } else {
+            await Character.knex('characters').update({
+                level: this.level,
+                xp: this.xp,
+                hp: this.max_hp,
+                pwr: this.initialPwr,
+                def: this.initialDef,
+                speed: this.initialSpeed,
+                dodge: this.initialDodge,
+                crit: this.initialCrit,
+                element: this.element,
+                basic_skill_id: this.basicSkill.id,
+                special_skill_id: this.specialSkill ? this.specialSkill.id : null,
+                ultimate_skill_id: this.ultimateSkill ? this.ultimateSkill.id : null,
+                updated_at: new Date()
+            }).where('id', this.id);
+        }
+
     }
 
     async gainXp(amount) {
@@ -106,7 +116,7 @@ class Character { // Wip: Hero extends Character
     getXpRequirement() {
         return Math.floor(100 * Math.pow(1.2, this.level - 1));
     }
-    async levelUp(updateXP = true) {
+    levelUp(updateXP = true) {
         if (updateXP) {
             this.xp -= this.xpToNextLevel;
             this.xpToNextLevel = this.getXpRequirement();
@@ -120,22 +130,27 @@ class Character { // Wip: Hero extends Character
         this.dodge = this.dodge + 0.05;
         this.crit = this.crit + 0.05;
 
+        this.basicSkill.upgrade();
+        if (this.specialSkill) this.specialSkill.upgrade();
+        if (this.ultimateSkill) this.ultimateSkill.upgrade();
+
         if (this.level % 10 === 0)
-            await this.upgradeSkills();
+            this.upgradeSkills();
+
     }
-    async upgradeSkills() {
+    upgradeSkills() {
         switch (this.level) {
             case 10:
                 this.basicSkill.levelup(); // basicSkill.level = 2
                 break;
             case 20:
-                this.specialSkill = await SpecialSkill.create({ character: this });
+                this.specialSkill = SpecialSkill.create({ character: this });
                 break;
             case 30:
                 this.specialSkill.levelup(); // specialSkill.level = 2
                 break;
             case 40:
-                this.ultimateSkill = await UltimateSkill.create({ character: this });
+                this.ultimateSkill = UltimateSkill.create({ character: this });
                 break;
             case 50:
                 this.basicSkill.levelup(); // basicSkill.level = 3
@@ -150,10 +165,6 @@ class Character { // Wip: Hero extends Character
                 this.ultimateSkill.levelup(); // ultimateSkill.level = 3
                 break;
         }
-
-        this.basicSkill.upgrade();
-        if (this.specialSkill) this.specialSkill.upgrade();
-        if (this.ultimateSkill) this.ultimateSkill.upgrade();
     }
 
     static generateRarity(user) {
@@ -187,6 +198,20 @@ class Character { // Wip: Hero extends Character
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    static assignResistances(element) {
+        // Définir des résistances de base selon l'élément
+        switch (element) {
+            case 'fire':
+                return { fire: 0.1, water: 0, earth: 0.3 };
+            case 'water':
+                return { fire: 0.3, water: 0.1, earth: 0 };
+            case 'earth':
+                return { fire: 0, water: 0.3, earth: 0.1 };
+            default:
+                return { fire: 0, water: 0, earth: 0 };
+        }
+    }
+
     generateEmbed() {
         const embed = new EmbedBuilder()
             .setTitle(`**${this.name}**    |    \`Id : ${this.id}\``)
@@ -197,8 +222,8 @@ class Character { // Wip: Hero extends Character
                 { name: "⚔️ PWR", value: `${this.pwr}`, inline: true },
                 { name: "🛡️ DEF", value: `${this.def}`, inline: true },
                 { name: "💨 Vitesse", value: `${this.speed}`, inline: true },
-                { name: "🎯 Esquive", value: `${(this.dodge * 100).toFixed(1)}%`, inline: true },
-                { name: "💥 Critique", value: `${(this.crit * 10).toFixed(1)}%`, inline: true }
+                { name: "🎯 Esquive", value: `${this.dodge}%`, inline: true },
+                { name: "💥 Critique", value: `${this.crit}%`, inline: true }
             ).setFooter({ text: `Niveau : ${this.level}    |    XP : ${this.xp} / ${this.xpToNextLevel}` });
 
         // Ajout des compétences si elles existent
@@ -251,14 +276,14 @@ class Character { // Wip: Hero extends Character
         if (!charactersData) return null;
 
         for (const characterData of charactersData) {
-            const character = new Character(characterData);
-            character.user = user;
+            const character = new Character({ ...characterData, user });
             await BasicSkill.loadInCharacterById({ character, skillId: characterData.basic_skill_id });
             await SpecialSkill.loadInCharacterById({ character, skillId: characterData.special_skill_id });
             await UltimateSkill.loadInCharacterById({ character, skillId: characterData.ultimate_skill_id });
             user.characters.push(character);
         }
     }
+
     static async getCharacterLoadedById(characterId) {
         const characterData = await Character.knex('characters').where('id', characterId).first();
         if (!characterData) return null;
@@ -268,6 +293,43 @@ class Character { // Wip: Hero extends Character
         await SpecialSkill.loadInCharacterById({ character, skillId: characterData.special_skill_id });
         await UltimateSkill.loadInCharacterById({ character, skillId: characterData.ultimate_skill_id });
         return character;
+    }
+
+    // Applique un effet et l'ajoute à la liste des effets actifs si nécessaire
+    applyEffect(effect) {
+        effect.remainingDuration = effect.duration;
+        if (effect.affected_stat === 'hp') {
+            if (effect.duration === 1) {
+                // Soin instantané
+                this.hp = Math.min(this.hp + effect.value, this.max_hp);
+            } else {
+                // Régénération sur plusieurs tours
+                this.activeEffects.push(effect);
+            }
+        } else {
+            // Buffs/Debuffs classiques
+            this[effect.affected_stat] += effect.value;
+            this.activeEffects.push(effect);
+        }
+    }
+
+    // Met à jour les effets actifs à chaque tour
+    updateEffects() {
+        for (let i = this.activeEffects.length - 1; i >= 0; i--) {
+            const effect = this.activeEffects[i];
+            effect.remainingDuration--;
+            if (effect.affected_stat === 'hp') {
+                // Appliquer la régénération de PV
+                this.hp = Math.min(this.hp + effect.value, this.max_hp);
+            }
+            if (effect.remainingDuration <= 0) {
+                if (effect.affected_stat !== 'hp') {
+                    // Rétablir la stat initiale pour les buffs/debuffs
+                    this[effect.affected_stat] -= effect.value;
+                }
+                this.activeEffects.splice(i, 1);
+            }
+        }
     }
 }
 

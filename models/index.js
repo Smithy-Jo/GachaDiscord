@@ -4,7 +4,6 @@ const User = require('./User');
 const Character = require('./Character');
 const Effect = require('./Effect');
 const Skill = require('./Skill');
-const Quest = require('./Quest');
 
 // Initialisation de la base de données
 module.exports = {
@@ -17,7 +16,6 @@ module.exports = {
         Character.knex = knex;
         Effect.knex = knex;
         Skill.knex = knex;
-        Quest.knex = knex;
 
         console.log('[INFO] Database initialized successfully');
 
@@ -26,6 +24,4 @@ module.exports = {
     Character,
     Effect,
     Skill,
-    Quest
-
 }

@@ -22,29 +22,10 @@ class Effect {
         this.name = parameters.name ?? this.generateName();
         this.description = parameters.description ?? this.getDescription();
 
+        this.remainingDuration = null;
+
     }
 
-    static async create(parameters) {
-        const effect = new Effect({ skill: parameters.skill });
-
-        const effect_id = await Effect.knex('effects').insert({
-            name: effect.name,
-            description: effect.description,
-            element: effect.element,
-            affected_stat: effect.affected_stat,
-            target: effect.target,  
-            duration: effect.duration,
-            value: effect.value,
-            skill_id: effect.skill.id,
-            created_at: new Date(),
-            updated_at: new Date()
-        });
-
-        effect.id = effect_id[0];
-
-        return effect;
-    }
-    
     generateElement() {
         if (this.skill.character.rarity === 'common' || this.skill.character.rarity === 'rare')
             return this.skill.character.element;
@@ -119,20 +100,39 @@ class Effect {
             : `Diminue **${this.affected_stat}** de **${this.value}%** sur l'ennemi pendant **${this.duration}** tours.`;
     }
 
-  
+
 
     async save() {
-        await Effect.knex('effects').update({
-            name: this.name,
-            description: this.description,
-            element: this.element,
-            affected_stat: this.affected_stat,
-            target: this.target,
-            duration: this.duration,
-            value: this.value,
-            skill_id: this.skill.id,
-            updated_at: new Date()
-        }).where('id', this.id)
+        if (this.id === null) {
+            const effect_id = await Effect.knex('effects').insert({
+                name: this.name,
+                description: this.description,
+                element: this.element,
+                affected_stat: this.affected_stat,
+                target: this.target,
+                duration: this.duration,
+                value: this.value,
+                skill_id: this.skill.id,
+                created_at: new Date(),
+                updated_at: new Date()
+            });
+            this.id = effect_id[0];
+            
+        } else {
+
+            await Effect.knex('effects').update({
+                name: this.name,
+                description: this.description,
+                element: this.element,
+                affected_stat: this.affected_stat,
+                target: this.target,
+                duration: this.duration,
+                value: this.value,
+                skill_id: this.skill.id,
+                updated_at: new Date()
+            }).where('id', this.id)
+        }
+
     }
 
     upgrade() {
@@ -144,7 +144,7 @@ class Effect {
         this.name = this.name.split(' ').slice(0, -1).join(' ') + ' ' + getRandomElement(namesConfig.suffixes[this.skill.level - 1]);
     }
 
-    static async loadInSkill(skill){
+    static async loadInSkill(skill) {
         const effectsData = await Effect.knex('effects').where('skill_id', skill.id);
         if (!effectsData) return null;
 

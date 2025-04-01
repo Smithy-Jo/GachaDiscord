@@ -8,36 +8,27 @@ class SpecialSkill extends Skill {
         this.cooldown = parameters.cooldown ?? Math.floor(Math.random() * 4) + 2; // 2 - 3;
     }
 
-    static async create(parameters) {
-
-        const skill = new SpecialSkill({ character: parameters.character });
-
-        const skill_id = await Skill.knex('skills').insert({
-            level: skill.level,
-            energy_cost: skill.energy_cost,
-            cooldown: skill.cooldown,
-        });
-        skill.id = skill_id[0];
+    static create(parameters) {
+        const specialSkill = new SpecialSkill(parameters);
 
         let numberOfEffects = 1;
-        if (skill.character.rarity === 'epic')
+        if (specialSkill.character.rarity === 'epic')
             numberOfEffects = Math.floor(Math.random() * 2) + 1; // 1 - 2
-        else if (skill.character.rarity === 'legendary')
+        else if (specialSkill.character.rarity === 'legendary')
             numberOfEffects = 2
 
         for (let i = 0; i < numberOfEffects; i++) {
-            const effect = await Effect.create({ skill });
-            skill.effects.push(effect);
+            specialSkill.effects.push(new Effect({ skill: specialSkill }));
         }
 
-        return skill;
+        return specialSkill;
     }
 
     static async loadInCharacterById(parameters) {
         const skillData = await Skill.knex('skills').where('id', parameters.skillId).first();
         if (!skillData) return null;
 
-        const skill = new SpecialSkill(skillData);
+        const skill = new SpecialSkill({...skillData, character: parameters.character});
         skill.character = parameters.character;
         skill.character.specialSkill = skill;
         await Effect.loadInSkill(skill);
