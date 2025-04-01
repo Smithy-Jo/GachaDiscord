@@ -101,7 +101,10 @@ class Character { // Wip: Hero extends Character
                 updated_at: new Date()
             }).where('id', this.id);
         }
+    }
 
+    async delete() {
+        return Character.knex('characters').where('id', this.id).del();
     }
 
     gainXp(amount) {

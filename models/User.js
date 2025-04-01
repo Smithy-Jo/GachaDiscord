@@ -89,6 +89,10 @@ class User {
         return user;
     }
 
+    async addGold(amount) {
+        return User.knex('users').where('id', this.id).increment('balance', amount);
+    }
+
 }
 
 module.exports = User;
